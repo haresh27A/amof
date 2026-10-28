@@ -1,0 +1,20 @@
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+psycopg2-binary>=2.9.6
+faiss-cpu>=1.7.4
+sentence-transformers>=2.2.2
+scikit-learn>=1.2.2
+numpy>=1.24.0
+pandas>=2.0.0
+pypdf>=3.9.0
+python-docx>=0.8.11
+requests>=2.31.0
+httpx>=0.24.0
+pytest>=7.3.1
+python-dotenv>=1.0.0
+# NOTE: the UI is Flutter (frontend/flutter_app, amora_chat) and is built with the
+# Flutter SDK, not pip. No Python UI dependencies are required.

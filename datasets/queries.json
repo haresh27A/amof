@@ -1,0 +1,30 @@
+[
+  {
+    "query_id": "q001",
+    "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+    "domain": "sales_inventory",
+    "requires_retrieval": true,
+    "required_tool": "sql_tool"
+  },
+  {
+    "query_id": "q002",
+    "query": "What does the company return policy say about unopened merchandise?",
+    "domain": "legal_policy",
+    "requires_retrieval": true,
+    "required_tool": "doc_tool"
+  },
+  {
+    "query_id": "q003",
+    "query": "Which product has generated the highest sales revenue?",
+    "domain": "sales_inventory",
+    "requires_retrieval": true,
+    "required_tool": "sql_tool"
+  },
+  {
+    "query_id": "q004",
+    "query": "What is the capital of France?",
+    "domain": "general_knowledge",
+    "requires_retrieval": false,
+    "required_tool": null
+  }
+]

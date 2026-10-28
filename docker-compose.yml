@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: amora_postgres
+    environment:
+      POSTGRES_USER: amora_user
+      POSTGRES_PASSWORD: amora_password
+      POSTGRES_DB: amora_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amora_user -d amora_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Single service: the FastAPI backend also serves the compiled Flutter web UI at /app.
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    container_name: amora_backend
+    environment:
+      - DATABASE_URL=postgresql://amora_user:amora_password@postgres:5432/amora_db
+      - LLM_PROVIDER=mock
+      - EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

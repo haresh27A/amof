@@ -1,0 +1,166 @@
+\section{End-to-End Query Execution Traces and Case Studies}
+\label{sec:case_studies}
+
+To provide granular, transparent verification of AMORA's runtime execution dynamics, this section walks through four representative case studies drawn from the gold enterprise benchmark suite. Each trace documents intermediate representations, computed scores, tool invocations, and synthesized outputs.
+
+\subsection{Case Study 1: Parametric Fast-Path Bypass (Query Q02)}
+\label{subsec:trace_q02}
+
+\begin{quote}
+\textbf{Natural Language Input Query ($q$):}  
+\texttt{``Calculate 450 * 1.08 to find the gross price with 8\% sales tax.''}
+\end{quote}
+
+\subsubsection{Gating Stage (IE-KRT Execution)}
+\begin{itemize}
+    \item \textbf{Syntactic Token Analysis:} $|q|_{\text{words}} = 11$. $L_{\text{score}} = 11 / 25 = 0.44$.
+    \item \textbf{Clause and Punctuation Indicators:} $\mathbb{I}_{\text{clause}} = 0$ (no logical condition), $\mathbb{I}_{\text{punct}} = 1$ (period present).
+    \item \textbf{Complexity Score ($E$):}
+    \begin{equation}
+        E = 0.50 \times 0.44 + 0.30 \times 0.0 + 0.20 \times 1.0 = 0.220 + 0.200 = 0.420
+    \end{equation}
+    \item \textbf{Factual and Temporal Need:}
+    \begin{equation}
+        F_{\text{need}} = 0.00 \quad (\text{no corporate inventory/policy keywords})
+    \end{equation}
+    \begin{equation}
+        T_{\text{need}} = 0.30 \times 1.0 = 0.30 \quad (\text{digits present: 450, 1.08})
+    \end{equation}
+    \item \textbf{Parametric Confidence ($m_i$):}
+    \begin{equation}
+        m_i = \max(0.1, \, 1.0 - (0.5 \times 0.0 + 0.4 \times 0.30)) = 1.0 - 0.12 = 0.880
+    \end{equation}
+    \item \textbf{External Urgency ($S_i$):}
+    \begin{equation}
+        S_i = \min(1.0, \, 0.3 + 0.4 \times 0.0 + 0.3 \times 0.30) = 0.390
+    \end{equation}
+    \item \textbf{Activation Score ($K$):}
+    \begin{equation}
+        K(t_i) = (E - m_i) \cdot S_i = (0.420 - 0.880) \times 0.390 = -0.460 \times 0.390 = \mathbf{-0.1794}
+    \end{equation}
+\end{itemize}
+
+\subsubsection{Decision and Routing Outcome}
+Since $K(t_i) = -0.1794 < \theta = 0.25$, the gating engine outputs $g(q) = 0$. 
+\begin{itemize}
+    \item \textbf{Retrieval Execution:} Completely bypassed ($0\,\text{ms}$ database I/O, $0$ tool calls, $0$ external API tokens).
+    \item \textbf{Compiled Prompt Context:} $\mathcal{X} = \emptyset$ (raw query fed directly to generator).
+    \item \textbf{Local LLM Response (Qwen 2.5 7B):}
+    \begin{quote}
+        \texttt{``450 * 1.08 = 486. The gross price including 8\% sales tax is \$486.00.''}
+    \end{quote}
+    \item \textbf{Total Wall-Clock Latency:} $412\,\text{ms}$ (pure local decoding, saving $>1,400\,\text{ms}$ compared to unconstrained RAG).
+\end{itemize}
+
+\subsection{Case Study 2: Real-Time Relational Database Routing (Query Q06)}
+\label{subsec:trace_q06}
+
+\begin{quote}
+\textbf{Natural Language Input Query ($q$):}  
+\texttt{``What is the current in-stock inventory count for Quantum X Laptop?''}
+\end{quote}
+
+\subsubsection{Gating and Query Formulation}
+\begin{itemize}
+    \item \textbf{Entity Extraction:} Anchor $\mathcal{P}(q) = \text{`Quantum X Laptop'}$.
+    \item \textbf{Factual Need:} Keyword \texttt{`inventory'} $\in \mathcal{K}_{\text{fact}} \implies F_{\text{need}} = 0.70$.
+    \item \textbf{Temporal Need:} Keyword \texttt{`current'} $\in \mathcal{K}_{\text{temp}} \implies T_{\text{need}} = 0.80$.
+    \item \textbf{Activation Score:} $K(t_i) = 0.486 \ge \theta = 0.25 \implies g(q) = 1$ (Trigger retrieval).
+    \item \textbf{Formulated Query Intent ($q^+$):}  
+    \texttt{``Quantum X Laptop stock inventory count live POS relational SQL database''}
+\end{itemize}
+
+\subsubsection{Two-Stage Funnel and Dynamic Ranking}
+\begin{itemize}
+    \item \textbf{Catalog Pre-filtering ($N=10,000 \to M=55$):} FAISS inner-product vector search executes in $3.26\,\text{ms}$, pruning $99.45\%$ of endpoints.
+    \item \textbf{Dynamic Weight Generation:} Because $T_{\text{need}} = 0.80 > 0.50$, temporal freshness is prioritized:
+    \begin{equation}
+        \mathbf{W}^* = [W_r^* = 0.28, \, W_l^* = 0.20, \, W_f^* = 0.27, \, W_c^* = 0.08, \, W_h^* = 0.09, \, W_k^* = 0.08]^T
+    \end{equation}
+    satisfying $\sum W_j^* = 1.000000$.
+    \item \textbf{Candidate Multi-Objective Evaluation:}
+    \begin{itemize}
+        \item Endpoint $s_1$ (\texttt{sql\_inventory\_ledger}): $R_1 = 0.91, L_1 = 0.98, F_1 = 0.99, C_1 = 0.05, H_1 = 0.96, K_1 = 0.00$.  
+        $\text{Score}_1 = 0.28(0.91) + 0.20(0.98) + 0.27(0.99) + 0.09(0.96) - 0.08(0.05) = \mathbf{0.799}$.
+        \item Endpoint $s_2$ (\texttt{doc\_product\_catalog\_2024}): $R_2 = 0.89, L_2 = 0.95, F_2 = 0.22, C_2 = 0.02, H_2 = 0.85, K_2 = 0.15$.  
+        $\text{Score}_2 = 0.28(0.89) + 0.20(0.95) + 0.27(0.22) + 0.09(0.85) - 0.08(0.02) - 0.08(0.15) = \mathbf{0.559}$.
+    \end{itemize}
+    Endpoint $s_1$ (\texttt{sql\_inventory\_ledger}) ranks \#1 by a wide margin due to its near-perfect freshness ($F_1 = 0.99$).
+\end{itemize}
+
+\subsubsection{Tool Execution and Generation}
+\begin{itemize}
+    \item \textbf{Generated SQL Query:}
+    \begin{quote}
+        \texttt{SELECT product\_name, stock\_quantity, warehouse\_code, last\_updated FROM inventory\_ledger WHERE product\_name LIKE '\%Quantum X Laptop\%';}
+    \end{quote}
+    \item \textbf{Raw Database Result:}
+    \begin{quote}
+        \texttt{[\{'product\_name': 'Quantum X Laptop', 'stock\_quantity': 150, 'warehouse\_code': 'WH-EAST-1', 'last\_updated': '2026-10-25 16:45:00'\}]}
+    \end{quote}
+    \item \textbf{Local LLM Synthesized Output:}
+    \begin{quote}
+        \texttt{``As of the latest inventory ledger update (October 25, 2026, 16:45), there are currently 150 units of the Quantum X Laptop in stock at warehouse WH-EAST-1.''}
+    \end{quote}
+\end{itemize}
+
+\subsection{Case Study 3: Unstructured Compliance Document Extraction (Query Q11)}
+\label{subsec:trace_q11}
+
+\begin{quote}
+\textbf{Natural Language Input Query ($q$):}  
+\texttt{``What is the maximum allowable hotel reimbursement under the 2026 travel policy?''}
+\end{quote}
+
+\subsubsection{Routing and Evidence Compaction}
+\begin{itemize}
+    \item \textbf{IE-KRT Gating:} $F_{\text{need}} = 0.85$ (\texttt{`reimbursement'}, \texttt{`policy'}) $\implies K(t_i) = 0.522 > \theta = 0.25 \implies g(q) = 1$.
+    \item \textbf{Selected Tool:} \texttt{doc\_travel\_handbook} (Relevance $R=0.94$, Reliability $L=0.99$).
+    \item \textbf{Raw Payload Ingested:} Three overlapping sections from the corporate PDF travel guidelines totaling $1,040$ tokens, containing redundant corporate headers, legal boilerplate, and table excerpts.
+    \item \textbf{Evidence Fusion Window Deduplication:} Sliding-window MurmurHash3 filtering eliminates duplicate section headers and preamble text, reducing the passage volume to $512$ tokens ($50.8\%$ reduction on raw document text).
+    \item \textbf{Synthesized LLM Response:}
+    \begin{quote}
+        \texttt{``Under Section 4.2 of the 2026 Corporate Travel Policy, the maximum allowable hotel reimbursement is \$275.00 per night for standard business destinations, or up to \$350.00 per night in designated high-cost metropolitan tiers with manager pre-approval.''}
+    \end{quote}
+\end{itemize}
+
+\subsection{Case Study 4: Multi-Source Numerical Conflict Resolution (Query Q16)}
+\label{subsec:trace_q16}
+
+\begin{quote}
+\textbf{Natural Language Input Query ($q$):}  
+\texttt{``Verify current stock and list price for Quantum X across ERP and PDF manual.''}
+\end{quote}
+
+This query represents the most demanding operational failure mode in enterprise RAG: resolving conflicting numbers between different enterprise databases.
+
+\subsubsection{Multi-Tool Invocation and Raw Payloads}
+AMORA selects both \texttt{sql\_inventory\_ledger} and \texttt{doc\_product\_catalog}.
+\begin{itemize}
+    \item \textbf{Payload from \texttt{sql\_inventory\_ledger} (Live ERP):}
+    \begin{quote}
+        \texttt{Stock: 150 units | Wholesale: \$850 | Retail: \$1,199 | Freshness: 0.99 (updated 15 mins ago)}
+    \end{quote}
+    \item \textbf{Payload from \texttt{doc\_product\_catalog} (PDF Snapshot):}
+    \begin{quote}
+        \texttt{Quantum X Laptop Specification: In Stock: 90 units | Suggested Retail: \$1,299 | Freshness: 0.12 (published Jan 2025)}
+    \end{quote}
+\end{itemize}
+
+\subsubsection{Conflict Graph Construction and Warning Injection}
+The Evidence Fusion engine extracts entity numerical anchors:
+\begin{itemize}
+    \item $\text{Entity}(\text{Quantum X}, \, \text{Stock}): v_{\text{SQL}} = 150 \neq v_{\text{Doc}} = 90$ ($\Delta = 60$).
+    \item $\text{Entity}(\text{Quantum X}, \, \text{Price}): v_{\text{SQL}} = \$1,199 \neq v_{\text{Doc}} = \$1,299$ ($\Delta = \$100$).
+\end{itemize}
+Rather than allowing the local model to hallucinate or average these values ($120$ units), AMORA prepends an explicit discrepancy resolution warning directly to the prompt context:
+\begin{quote}
+    \texttt{[DATA DISCREPANCY DETECTED: Source 'sql\_inventory\_ledger' (Freshness=0.99, Live POS) reports Stock=150 and Price=\$1,199. Source 'doc\_product\_catalog' (Freshness=0.12, Stale PDF) reports Stock=90 and Price=\$1,299. Instruct LLM to cite live transactional ledger as authoritative while noting the catalog discrepancy.]}
+\end{quote}
+
+\subsubsection{Final Generation Output}
+\begin{quote}
+    \texttt{``According to the live ERP inventory ledger (updated today, Freshness 0.99), the current stock for the Quantum X Laptop is **150 units** at an active retail price of **\$1,199.00**.\\
+    *Note: An archival product catalog PDF (published January 2025) lists an obsolete figure of 90 units at \$1,299.00; the live ERP transactional record reflects current authorized pricing and physical warehouse inventory.*''}
+\end{quote}
+This execution verifies AMORA's ability to maintain factual grounding and transparency even in the presence of conflicting corporate records.

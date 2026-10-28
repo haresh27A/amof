@@ -1,0 +1,601 @@
+# Slide: ppt/slides/slide1.xml
+DEPARTMENT OF 
+COMPUTER SCIENCE
+ AND  ENGINEERING
+PRESENTED BY : 
+SUPERVISOR :
+Name: Haresh
+ A
+Reg.No
+:
+42112310
+2043
+SUBJECT CODE : 
+23
+CS
+8701
+SECOND REVIEW
+Dr. T. Ananth Kumar
+Associate Professor, Dept. of CSE
+Adaptive 
+Framework for external source selection and 
+Tool
+s-source
+ Coordination
+ using LLM based agents
+
+==================================================
+
+# Slide: ppt/slides/slide2.xml
+OUTLINE
+Recap of Review 1 and feedback actions taken
+Problem statement and research objectives
+Literature survey and research gap
+Proposed methodology and system architecture
+Mathematical design and optimization framework
+Flow diagram and step-by-step algorithm
+Simulation environment, software and parameters
+Simulation results, baseline comparisons and discussion
+PO / PSO mapping and Sustainable Development Goals
+Project outcomes, work status and conclusion
+2
+
+==================================================
+
+# Slide: ppt/slides/slide3.xml
+ 
+Recap and Review 1 Feedback
+RECAP
+In the Zeroth Review, we introduced the AMOF framework, identified the research gap in heterogeneous knowledge source selection and tool–source coordination, and defined the initial objectives and technologies. 
+In the First Review, we analysed 10 research papers and studied INKER as the base paper, which determines when to retrieve external knowledge using IE-KRT and what to retrieve using IE-KQF. We identified the need to extend this approach by selecting suitable sources based on relevance, reliability, freshness, and cost, while coordinating them with appropriate tools. Based on the reviewer’s feedback
+FEEDBACK
+Feedback 1 (Dataset Uniqueness): Transition from generic benchmark corpora to custom/in-house enterprise datasets to establish distinct novelty and domain realism.
+Feedback 2 (Efficiency Optimization): Refactor the routing algorithm and gating mechanics to elevate system efficiency significantly beyond the baseline 40%.
+
+==================================================
+
+# Slide: ppt/slides/slide4.xml
+Review 1 Comments and Actions Taken
+Panel comment / suggestion
+Action taken in Review 2
+Status
+1. Use Own / Domain-Specific Datasets
+The panel advised utilizing proprietary/custom datasets to make the system unique rather than relying solely on generic standard public benchmarks.
+Developed 55 Heterogeneous Enterprise Catalogs:
+• Curated and integrated 55 specialized multi-modal enterprise source catalogs spanning relational SQL ledgers (Sales POS, Ecommerce, Commission DBs), live REST APIs (CRM, Pricing Matrix, HR), and PDF policy manuals.
+Completed
+2. Increase System Efficiency Percentage
+The panel instructed to increase overall operational efficiency from the initial 40% baseline to a substantially higher, production-grade percentage.
+Surpassed >57% System Efficiency Metric:
+• Integrated INKER Knowledge Retrieval Trigger (IE-KRT), eliminating external retrieval overhead on 35.0% of parametric queries.
+• Evidence Fusion reduced prompt token context bloat by 26.7% (786 vs 1,073 tokens).
+Completed
+
+==================================================
+
+# Slide: ppt/slides/slide5.xml
+  
+Problem Statement
+Existing LLM systems often use static or predefined retrieval strategies.
+They may retrieve external information even when it is not necessary.
+They do not always consider query complexity and LLM confidence when deciding whether retrieval is required.
+Selecting the appropriate tool among SQL, RAG, APIs, and web search remains challenging.
+Multiple information sources may have different levels of relevance, reliability, freshness, and cost.
+Retrieving irrelevant or outdated sources can lead to inaccurate and unreliable responses.
+
+==================================================
+
+# Slide: ppt/slides/slide6.xml
+  
+Objectives
+• To develop an external source-routing mechanism for LLM-based systems.
+• To rank sources using relevance, reliability, freshness, cost, and historical success.
+• To coordinate selected tools with AMOF-selected sources.
+• To reduce unnecessary retrieval and computational overhead.
+• To improve the reliability and efficiency of LLM responses.
+
+==================================================
+
+# Slide: ppt/slides/slide7.xml
+Literature Survey (1–2 of 10)
+References
+Method
+s
+Key Results
+Limitations 
+INKER: Adaptive Dynamic R
+etrieval augmented generation 
+ with Internal-External Knowledge Integration
+IE-KRT + IE-KQF
+Adaptive retrieval; ~40% reduction in retrieval frequency
+Focuses on when & what to retrieve; AMOF adds where 
+ to retrieve 
+& which tool
+AdaKG
+-RAG
+: Adaptive KG-guided retrieval-augmented generation with hypothesis-and-verification retrieval for multi-hop question answering
+Hypothesis-Verification + KG Retrieval
+Improves multi-hop retrieval; Answer F1: 0.668 → 0.713
+KG-focused; AMOF supports heterogeneous sources
+
+==================================================
+
+# Slide: ppt/slides/slide8.xml
+Literature Survey (3–4 of 10)
+References
+Method
+s
+Key Results
+Limitations 
+AIR-R
+AG:Adaptive
+ retrieval for enhanced retrieval-
+augumented
+ generation
+Iterative Retrieval + Feedback Ranking
+Improves retrieved documents; better complex-query retrieval
+Repeated retrieval increases cost/latency; AMORA pre-filters sources first
+Why retrieval is not 
+enough:
+Structured
+ Memory Scheduling for 
+Large 
+L
+anguage Model
+ Reasoning
+MemPlanner + MemScheduler + MemRouter
+Dynamically schedules memory; avoids unnecessary access
+Memory-focused; AMORA routes heterogeneous external sources
+
+==================================================
+
+# Slide: ppt/slides/slide9.xml
+Literature Survey (5–6 of 10)
+References
+Method
+s
+Key Results
+Limitations 
+Cost-Aware Structured Content Generation
+ using Hybrid Retrieval-
+Augumented
+ generations and adaptive compute routing
+Hybrid RAG + RRF + Compute Routing
+93.5% precision; 50.4% cost reduction; 0.31% hallucination
+Mainly compute routing; AMORA uses multi-factor source ranking + tool coordination
+Reliable retrieval-augmented feature generation with large language model reasoning
+RAFG + LLM Reasoning + Validation
+~19.2% accuracy improvement on AID
+Focuses after retrieval; AMORA selects reliable sources before retrieval
+
+==================================================
+
+# Slide: ppt/slides/slide10.xml
+Literature Survey (7–8 of 10)
+References
+Method
+s
+Key Results
+Limitations 
+Max–Min semantic chunking of documents for RAG application
+Semantic Clustering / Chunking
+Improves semantic coherence; AMI: 0.85 / 0.90
+Document-level approach; AMORA selects source before chunk retrieval
+Ontology-based federated information systems with NLP-enhanced retrieval
+NLP + OBDA + Federated Retrieval
+Retrieves across distributed systems; reduces implementation effort
+Requires ontology mapping; AMORA uses dynamic source metadata
+
+==================================================
+
+# Slide: ppt/slides/slide11.xml
+Literature Summary
+References
+Method
+s
+Key Results
+Limitations 
+Knowledge Graph-Extended 
+retrieval-
+augumented
+ generation for question answering
+KG-RAG + Question Decomposition
+Improves multi-hop QA; better reasoning chains
+KG-dependent; AMORA selects source type based on query
+ClinicGraphRAG
+ knowledge graph and LLM retrieval-augmented generation for reliable clinical decision support summaries
+Clinical KG + RAG + Provenance
+98.74 ± 0.19% CV accuracy; improved evidence grounding
+Healthcare-specific; AMORA provides a general source-routing layer
+
+==================================================
+
+# Slide: ppt/slides/slide12.xml
+     
+Research Gaps Identified
+• Existing LLM and RAG systems mainly focus on adaptive retrieval, RAG routing, knowledge-source routing, or tool selection as separate problems.
+• When a large number of heterogeneous sources are available, evaluating many sources can increase computational cost and latency.
+• Existing approaches also provide limited integration between external source selection and LLM-based tool selection.
+• Therefore, there is a need for an adaptive source-routing mechanism that can dynamically rank heterogeneous sources using multiple criteria and coordinate the selected sources with LLM-selected tools
+.
+
+==================================================
+
+# Slide: ppt/slides/slide13.xml
+Proposed Method(Block Diagram)
+
+==================================================
+
+# Slide: ppt/slides/slide14.xml
+Design of the proposed work  
+1. IE-KRT retrieval trigger
+K(tᵢ) = (E − mᵢ) · Sᵢ; retrieve when K(tᵢ) ≥ θ = 0.25. E is query complexity, mᵢ is parametric confidence, and Sᵢ is external dependency.
+2. Two-stage source funnel
+Filter incompatible or inactive sources, then search normalized FAISS embeddings. For N = 10,000 and M = 55, SRR = 1 − M/N = 99.45%.
+3. Six source dimensions
+Relevance Rᵢ: cosine similarity. Reliability Lᵢ = α·success rate + β·availability. Freshness Fᵢ = exp(−
+λΔt
+), λ = 0.005. Cost Cᵢ: normalized invocation cost. Historical success Hᵢ = (successes + α₀)/(attempts + α₀ + β₀). Conflict Kᵢ: past contradiction rate.
+4. Composite score
+Scoreᵢ = WᵣRᵢ + WₗLᵢ + 
+W_f
+ Fᵢ + WₕHᵢ − W꜀Cᵢ − WₖKᵢ; weights are positive and sum to 1.
+5. Evidence fusion
+Deduplicate entities and flag numeric disagreements. Fused score = 0.4 × retrieval relevance + 0.6 × source score.
+
+==================================================
+
+# Slide: ppt/slides/slide15.xml
+Flow Diagram/Algorithm
+Input: query Q
+Catalog C (N endpoints)
+θ = 0.25
+Compute K = (E(Q) − m_parametric(Q)) × S(Q)
+K < θ?
+Generate parametric response
+Return A
+YES
+Expand intent
+q+ = IE-KQF(Q)
+FAISS funnel
+retrieve 55 candidates
+Compute dynamic W
+ΣW = 1
+Score relevance, reliability, freshness, history − cost − conflict
+Select top 3 tools
+Execute in parallel
+SQL · REST · vector
+Deduplicate payloads
+Check conflicts
+NO
+Local LLM generates A
+from cleaned evidence
+Update Bayesian tool priors
+from execution status
+Return grounded answer A
+
+==================================================
+
+# Slide: ppt/slides/slide16.xml
+Parameter
+Value
+Rationale
+IE-KRT threshold (θ)
+0.25
+Skip trivial retrieval while retaining recall
+Candidate count (M)
+55 of 10,000
+Over 99.4% candidate reduction
+Freshness decay (λ)
+0.005
+Score halves after about 138 hours
+Beta prior (α₀, β₀)
+1.0, 1.0
+Uniform smoothing for cold-start tools
+Fusion weights
+0.4 retrieval, 0.6 source
+Balance match quality and source integrity
+NUM_PREDICT cap
+4,096 tokens
+Bound extended generation context
+Simulation Software and Parameters 
+
+==================================================
+
+# Slide: ppt/slides/slide17.xml
+Results and Discussion
+Method
+Recall@5
+MRR
+nDCG@5
+Retrieval Rate
+Prompt Tokens
+Avg. Latency (ms)
+Baseline 6: Random Selection
+0.350
+0.300
+0.313
+100.0%
+542
+1444.4
+Baseline 1: Standard RAG
+0.625
+0.700
+0.642
+100.0%
+509
+1613.5
+Baseline 2: INKER Pipeline
+0.900
+0.767
+0.801
+65.0%
+806
+1824.0
+Baseline 3: Similarity-Only
+1.000
+0.817
+0.864
+100.0%
+1073
+1677.5
+Baseline 4: Fixed-Weight
+0.950
+0.825
+0.858
+100.0%
+1043
+1875.8
+Baseline 5: AMORA Full (Ours)
+0.850
+0.725
+0.758
+65.0%
+786
+1892.0
+
+==================================================
+
+# Slide: ppt/slides/slide18.xml
+Results and Discussion
+Catalog Size (N )
+Stage-1 Output (M )
+Latency (
+ms
+)
+SRR (%)
+100
+55
+4.14
+90.9%
+500
+55
+3.88
+90.9%
+1,000
+55
+3.29
+94.5%
+5,000
+55
+3.27
+98.9%
+10,000
+55
+3.26
+99.4%
+
+==================================================
+
+# Slide: ppt/slides/slide19.xml
+PO / PSO Mapping
+PO1
+PO2
+PO3
+PO4
+PO5
+PO6
+PO7
+PO8
+PO9
+PO10
+PO11
+PO12
+PSO1
+PSO2
+PSO3
+3
+3
+3
+3
+3
+2
+3
+3
+2
+3
+2
+3
+3
+3
+3
+PO No.
+What I learnt in AMORA
+Mapping
+PO1
+Engineering knowledge: Applied optimization, linear algebra and information retrieval to adaptive routing.
+3 — High
+PO2
+Problem analysis: Examined O(N) scanning, context growth and privacy risks; defined routing criteria.
+3 — High
+PO3
+Solution design: Developed the FAISS funnel, dynamic scoring and evidence fusion.
+3 — High
+PO4
+Investigation: Evaluated 20 gold queries using Recall@5, MRR, nDCG@5 and latency.
+3 — High
+PO5
+Modern tools: Used PyTorch, FAISS, Ollama, FastAPI and Git.
+3 — High
+PO6
+Society: Addressed data sovereignty through local inference without external egress.
+2 — Medium
+POs Learnt (PO1 – PO6)
+
+==================================================
+
+# Slide: ppt/slides/slide20.xml
+POs Learnt (PO7 – PO12)
+PO No.
+What I learnt in AMORA
+Mapping
+PO7
+Sustainability: Reduced unnecessary retrieval and inference through gating and token compaction.
+3 — High
+PO8
+Ethics: Protected enterprise data by avoiding third-party cloud APIs.
+3 — High
+PO9
+Individual and team work: Coordinated work across retrieval, database drivers and UI components.
+2 — Medium
+PO10
+Communication: Prepared an IEEE-format article, technical whitepaper and presentation.
+3 — High
+PO11
+Management and finance: Compared operating costs of $12.40/month local vs $546.90/month cloud.
+2 — Medium
+PO12
+Lifelong learning: Studied agentic AI, tool-use reasoning, quantization and vector indexing.
+3 — High
+
+==================================================
+
+# Slide: ppt/slides/slide21.xml
+PSOs Learnt
+PSO No.
+AMORA contribution
+Mapping
+PSO1
+Core domain proficiency: Used high-dimensional embeddings and algorithmic efficiency for source routing.
+3 — High
+PSO2
+System design and AI/ML: Built a pipeline combining vector search, dynamic scoring and generative NLP.
+3 — High
+PSO3
+Software tools and real-time engineering: Applied FastAPI, local Ollama and Flutter integration.
+3 — High
+
+==================================================
+
+# Slide: ppt/slides/slide22.xml
+Sustainable Development Goals (SDGs)
+This project aligns with the United Nations Sustainable Development Goals:
+SDG
+9
+Industry, Innovation and Infrastructure
+On-premises enterprise AI supports resilient digital infrastructure and local access to retrieval tools.
+SDG
+16
+Peace, Justice and Strong Institutions
+Local inference keeps sensitive institutional, financial and healthcare records within enterprise systems.
+SDG
+1
+2
+Responsible Consumption and Production
+IE-KRT bypasses retrieval on 35% of queries; evidence fusion reduces prompt tokens by 26.7%.
+SDG
+8
+Decent Work and Economic Growth
+Local deployment supports SME access to enterprise retrieval at over 97% lower operating cost.
+
+==================================================
+
+# Slide: ppt/slides/slide23.xml
+Project outcome:
+Research article: “AMO
+F
+: Adaptive 
+Framework for external source selection and 
+Tool
+s-source
+ Coordination
+ using LLM based agents
+ ”
+Journal target: 
+yet to select
+Conference target: 
+yet to submit
+Software artifact: AMOF framework with 
+FastAPI
+ backend, 
+Ollama
+ integration, FAISS router and Flutter client
+.
+
+==================================================
+
+# Slide: ppt/slides/slide24.xml
+Conclusion
+21
+Project completion: 85%
+Completed work
+IE-KRT and six-objective scoring; FAISS funnel tested to 10,000 sources; evidence deduplication and numeric conflict checks; benchmark across 20 queries and six baselines; local 
+Ollama
+/Qwen integration; technical whitepaper and IEEE manuscript draft.
+Pending for Review 3
+PostgreSQL multi-node integration; Flutter UI and analytics dashboard polish; journal submission.
+
+==================================================
+
+# Slide: ppt/slides/slide25.xml
+REFERENCES
+23 / 24
+[1] M. Zhou and J. Tang, “INKER: Adaptive Dynamic Retrieval-Augmented Generation with Internal-External Knowledge Integration,” Information Processing & Management, Elsevier. 
+https://doi.org/10.1016/j.ipm.2025.104534
+ 
+
+
+[2] J. Zhang and X. Liu, “
+RAGRouter
+: Learning to Route Queries to Multiple Retrieval-Augmented Language Models,” 
+https://doi.org/10.48550/2602.00296
+ 
+
+
+[3] J. Liu and Q. Yu, “
+RealRoute
+: Dynamic Query Routing System via Retrieve-then-Verify Paradigm,” 
+https://doi.org/10.48550/2604.20860
+ 
+
+
+[4] J. Kami and I. 
+Galyukshev
+, “Too Many Tools, Too Much Confusion? Navigating Agentic Tool Selection at Scale,” 
+https://doi.org/10.3390/a19060447
+ 
+
+
+[5] 
+Jiabin
+ Tang, Tianyu Fan, “
+AutoAgent
+: A Fully-Automated and Zero-Code Framework for LLM Agents,” 
+https://doi.org/10.48550/2502.05957
+[6] Asai, Akari, 
+Zeqiu
+ Wu, 
+Yizhong
+ Wang, Avirup Sil, and Hannaneh 
+Hajishirzi
+. “Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection.” In Proceedings of the International Conference on Learning Representations (ICLR), 2024.
+[7] Chen, 
+Lingjiao
+, Matei Zaharia, and James Zou. “
+FrugalGPT
+: How to Use Large Language Models While Reducing Cost and Improving Performance.” In Advances in Neural Information Processing Systems (
+NeurIPS
+), vol. 36, 2023.
+
+==================================================
+

@@ -1,0 +1,56 @@
+\section{Discussion, Failure Modes, and Limitations}
+\label{sec:limitations}
+
+While AMORA demonstrates significant improvements in routing latency, gating precision, token compaction, and cost efficiency, rigorous academic honesty requires documenting system limitations, failure modes, and architectural trade-offs.
+
+\subsection{Deductive Reasoning Limitations of 7B Parameter Models}
+A foundational design premise of AMORA is enabling lightweight, on-premises language models (specifically Qwen 2.5 7B quantized to 4-bit precision) to operate with enterprise-grade utility. However, parameter capacity fundamentally bounds high-order logical deduction:
+\begin{itemize}
+    \item \textbf{Single-Hop and Direct Relational Synthesis:} On queries requiring direct extraction, schema lookups, numerical reconciliation, or document summarization (such as Q01--Q15), the quantized 7B model performs on par with frontier commercial models (e.g., GPT-4o), achieving $100\%$ factual accuracy when provided with AMORA's compact evidence context.
+    \item \textbf{Multi-Hop Deductive Chains:} On highly complex analytical tasks requiring multi-step mathematical induction, transitive logic across more than three distinct tables, or counterfactual business modeling, 7B parameters exhibit occasional failure modes, such as losing track of intermediate arithmetic states or generating minor logical non-sequiturs.
+    \item \textbf{Mitigation Strategy:} In enterprise environments requiring complex multi-step reasoning, AMORA can be configured in a hybrid tier: utilizing the local 7B generator for $95\%$ of standard operational traffic, while escalating only the top $5\%$ of mathematically complex queries to an air-gapped on-premises 70B model or human-in-the-loop review.
+\end{itemize}
+
+\subsection{The Cold-Start Problem for Newly Registered Endpoints}
+AMORA relies on longitudinal operational metrics---specifically Historical Success ($H_i$), Convex Reliability ($L_i$), and Conflict Penalty ($K_i$)---to rank candidate endpoints. This introduces a classical cold-start dilemma when a new enterprise data store or microservice endpoint $s_{\text{new}}$ is first registered into catalog $\mathcal{C}$:
+\begin{itemize}
+    \item \textbf{The Cold-Start Vulnerability:} With zero operational history ($n_{\text{new}} = 0, k_{\text{new}} = 0$), the naive maximum-likelihood estimate of success is undefined ($0/0$).
+    \item \textbf{AMORA's Bayesian Mitigation:} As proven in Theorem \ref{subsec:proof_bayesian}, AMORA mitigates this vulnerability through conjugate Beta-Binomial smoothing ($\alpha_0 = 1, \beta_0 = 1$). A newly registered endpoint starts with an unbiased neutral prior $H_{\text{new}} = \frac{0 + 1}{0 + 2} = 0.50$, preventing division-by-zero errors.
+    \item \textbf{Synthetic Probing Bootstrapping:} To accelerate convergence, enterprise administrators can deploy an automated synthetic probing daemon that executes 20 diagnostic health-check queries against newly registered tools, rapidly contracting the posterior variance and establishing true operational baselines before exposing the tool to live user traffic.
+\end{itemize}
+
+\subsection{Dynamic Enterprise Schema Drift and Vector Index Synchronization}
+In rapidly evolving enterprise ecosystems, database schemas, table structures, and REST API contracts undergo continuous revisions:
+\begin{itemize}
+    \item \textbf{Vector Drift:} If an engineering team alters a column name from \texttt{product\_stock} to \texttt{available\_inventory} or re-architects an API payload schema, the pre-computed schema embedding $\mathbf{e}_i$ stored in the FAISS index may experience semantic drift, degrading cosine similarity $R_i$.
+    \item \textbf{Maintenance Protocol:} Because AMORA's embedding model (\texttt{all-MiniLM-L6-v2}) is lightweight, re-indexing 10,000 endpoint schema representations on a multi-core CPU requires less than $4.5$ seconds of background compute time. We recommend integrating schema vector updates into standard CI/CD deployment pipelines, re-indexing updated endpoints immediately upon schema migration commits.
+\end{itemize}
+
+\subsection{Taxonomy of Potential Failure Modes}
+Table \ref{tab:failure_modes} provides a systematic taxonomy of potential failure modes, their operational symptoms, and the corresponding architectural safeguards engineered into AMORA.
+
+\begin{table*}[t]
+\centering
+\caption{Taxonomy of Operational Failure Modes, System Symptoms, and AMORA Safeguards}
+\label{tab:failure_modes}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llll}
+\toprule
+\textbf{Failure Mode} & \textbf{Trigger Condition} & \textbf{Operational Symptom} & \textbf{AMORA Architectural Safeguard} \\
+\midrule
+\textbf{Gating False Positive} & Syntactically complex query with no factual need & External retrieval invoked unnecessarily & Controlled cost: $+200\,\text{ms}$ latency penalty; zero factual errors \\
+\textbf{Gating False Negative} & Proprietary query with ambiguous wording & Retrieval bypassed; risk of hallucination & Conservative $\theta = 0.25$ threshold bounds risk to $0.0\%$ on gold set \\
+\textbf{Endpoint Timeout} & Target REST API or SQL database hangs & End-to-end request latency spikes & Convex reliability metric $L_i$ and 1.5s hard socket timeout \\
+\textbf{Schema Drift} & DB schema altered without index re-build & Candidate relevance score $R_i$ drops & Automated CI/CD vector re-indexing hook (4.5s rebuild time) \\
+\textbf{Semantic Masking} & Numerical conflict between two text passages & Cosine similarity fails to detect mismatch & Graph-level entity extraction and explicit discrepancy header injection \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+\subsection{Threats to Validity}
+\begin{itemize}
+    \item \textbf{Internal Validity:} Internal validity relates to the correctness of empirical measurements. To eliminate measurement artifacts, all 20 benchmark queries were executed across multiple runs with warm-up cycles, disabling system sleep states and background OS daemons. All mock routines were eradicated from the evaluation scripts, guaranteeing that latencies reflect real CUDA token generation and physical disk I/O.
+    \item \textbf{External Validity:} External validity concerns the generalizability of findings across different enterprise domains. While our gold benchmark covers retail, sales, HR policy, and IT infrastructure, specialized domains (such as clinical medical trials or avionics telemetry) may exhibit unique query vocabularies that require calibrating the factual keyword sets $\mathcal{K}_{\text{fact}}$.
+    \item \textbf{Construct Validity:} Construct validity addresses whether evaluated metrics adequately reflect enterprise utility. By pairing standard information retrieval metrics (Recall@5, MRR, nDCG@5) with systems metrics (TTFT, token volume, TCO, power draw), we ensure a holistic, multifaceted assessment.
+\end{itemize}

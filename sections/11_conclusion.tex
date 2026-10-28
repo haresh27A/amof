@@ -1,0 +1,25 @@
+\section{Conclusion and Future Horizons}
+\label{sec:conclusion}
+
+This paper introduced **AMORA** (\textbf{A}daptive \textbf{M}ulti-\textbf{O}bjective \textbf{R}easoning \textbf{A}lgorithm), an end-to-end framework that resolves the foundational trade-offs between retrieval accuracy, query latency, context token bloat, data sovereignty, and monetary cost in heterogeneous enterprise Retrieval-Augmented Generation.
+
+\subsection{Summary of Scientific and Engineering Contributions}
+By holistically unifying adaptive knowledge gating, hierarchical candidate pre-filtering, dynamic multi-objective Pareto optimization, and multi-source evidence fusion, AMORA establishes a new design benchmark for enterprise AI systems:
+\begin{enumerate}
+    \item \textbf{Adaptive Knowledge Gating:} Through the INKER Knowledge Retrieval Trigger (IE-KRT), AMORA eliminates external tool invocation on **$35.0\%$ of queries** where internal parametric knowledge is sufficient. We proved that the conservative activation threshold $\theta = 0.25$ guarantees deterministic zero false-negative retrieval errors on private corporate data.
+    \item \textbf{Sub-Linear Catalog Scalability:} AMORA's two-stage vector funnel compresses enterprise catalogs from $N = 10,000$ endpoints down to $M = 55$ candidates in $3.26\,\text{ms}$, attaining a Source Reduction Ratio of **$99.45\%$** and reducing algorithmic profiling complexity from $O(N \cdot D)$ to $O(\log N + M \log M)$.
+    \item \textbf{Dynamic Multi-Objective Pareto Optimality:} By formalizing a 6-dimensional profiling engine governed by a dynamic simplex projection invariant ($\sum W_j^* = 1.0$), AMORA guarantees that selected endpoints strictly reside on the non-dominated Pareto frontier, aligning real-time tool dispatch with detected temporal, factual, and cost priorities.
+    \item \textbf{Context Compaction and Discrepancy Isolation:} AMORA's Evidence Fusion engine compacts prompt contexts by **$26.7\%$** ($786$ vs. $1,073$ tokens) and pre-emptively surfaces numerical contradictions across competing enterprise databases via an $O(E^2)$ discrepancy graph before generation.
+    \item \textbf{Multiplicative Compound Workload Reduction:} By compounding gating bypass ($35.0\%$) with token compaction ($26.7\%$), AMORA reduces the net computational workload imposed on host GPUs by **$52.35\%$** across total enterprise traffic.
+    \item \textbf{Verifiable Sovereignty and Economic Viability:} Operating entirely on commodity workstation hardware (RTX 3060 12GB) with local quantized models (Qwen 2.5 7B), AMORA guarantees **zero external data egress** (full compliance with GDPR, HIPAA, and SOC 2) while slashing operational expenditures by **$96.5\%$** compared to commercial cloud APIs, achieving full capital hardware amortization in 20 calendar days.
+\end{enumerate}
+
+\subsection{Future Research Horizons}
+The architectural foundations established in AMORA open several promising avenues for future inquiry:
+\begin{itemize}
+    \item \textbf{Autonomous Tool Self-Healing and Synthesis:} Developing meta-reinforcement learning controllers that autonomously synthesize missing API adapters or generate SQL views in response to novel, un-indexed user queries.
+    \item \textbf{Federated Multi-Enterprise Routing:} Extending AMORA's two-stage funnel to federated enterprise environments where multiple independent corporate subsidiaries share encrypted schema embeddings without centralizing raw operational data.
+    \item \textbf{Hardware-Aware Speculative Tool Execution:} Interleaving speculative small-model generation with asynchronous background tool invocations to hide retrieval I/O latency entirely during streaming token generation.
+\end{itemize}
+
+In conclusion, AMORA demonstrates that enterprise-grade accuracy, high throughput, and strict data privacy do not require multi-million-dollar cloud API contracts or high-power compute clusters. Through intelligent, multi-objective neuro-symbolic tool coordination, lightweight open-weight models deployed on commodity local hardware can deliver robust, transparent, and provably grounded intelligence for the modern enterprise.

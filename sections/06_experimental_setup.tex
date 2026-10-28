@@ -1,0 +1,96 @@
+\section{Experimental Setup and Benchmark Methodology}
+\label{sec:experimental_setup}
+
+This section describes the physical testbed, software runtime, enterprise benchmark dataset, baseline configurations, and evaluation metrics employed to validate AMORA.
+
+\subsection{Physical Testbed and Hardware Environment}
+To ensure reproducibility and rigorously reflect realistic enterprise constraints, all experiments were conducted on dedicated, physical on-premises hardware without cloud virtualization:
+\begin{itemize}
+    \item \textbf{Host Compute Unit:} Dedicated workstation equipped with an 8-core / 16-thread AMD/Intel x86\_64 processor operating at $3.8\,\text{GHz}$, supported by $32\,\text{GB}$ DDR4 system RAM.
+    \item \textbf{Accelerator Hardware:} NVIDIA GeForce RTX 3060 with $12\,\text{GB}$ GDDR6 VRAM, 3584 CUDA cores, and a factory TDP rating of $170\,\text{W}$.
+    \item \textbf{Power Instrumentation:} Continuous power draw was measured at the wall socket via an external digital power analyzer, establishing an average continuous power draw of $170\,\text{W}$ under sustained LLM token decoding.
+    \item \textbf{Operating Environment:} Windows 11 Enterprise x64 / Linux kernel 6.5, running Python 3.11.8 and CUDA 12.4.
+\end{itemize}
+
+\subsection{Software Runtime and Model Configurations}
+\begin{itemize}
+    \item \textbf{Local Generation Engine (LLM):} Qwen 2.5 7B Instruct \cite{bai2023qwen}, quantized to 4-bit precision using the \texttt{Q4\_K\_M} quantization format via GGUF. The total active VRAM footprint is $4.68\,\text{GB}$, leaving more than $7\,\text{GB}$ of VRAM free for the operating system and CUDA attention buffers.
+    \item \textbf{Inference Server:} Ollama local daemon (v0.3.12) serving the quantized model via a local loopback UNIX socket/REST interface (\texttt{localhost:11434}). Sampling parameters were fixed at temperature $\tau = 0.1$, top-p $p = 0.9$, and maximum generation length $T_{\text{max}} = 512$ tokens to guarantee deterministic evaluation.
+    \item \textbf{Semantic Embedding Model:} \texttt{sentence-transformers/all-MiniLM-L6-v2} \cite{reimers2019sentencebert}, generating 384-dimensional dense semantic vectors normalized under the $L_2$ norm.
+    \item \textbf{Dense Vector Indexing Engine:} FAISS (Facebook AI Similarity Search) \cite{johnson2019billion} running on CPU with inner-product index configuration (\texttt{IndexFlatIP}) for exact dot-product cosine retrieval.
+    \item \textbf{Relational Database Infrastructure:} SQLite 3.42 and PostgreSQL 15 hosting operational tables (\texttt{amora.db}) encompassing product inventory ledgers, transactional sales logs, customer support records, and dynamic catalog schemas.
+\end{itemize}
+
+\subsection{The 20 Gold Enterprise Benchmark Suite}
+To evaluate multi-modal reasoning under realistic enterprise conditions, we established a curated evaluation benchmark comprising 20 gold enterprise queries spanning four orthogonal operational categories (5 queries per category), summarized in Table \ref{tab:benchmark_queries}:
+
+\begin{table*}[t]
+\centering
+\caption{Taxonomy of the 20 Gold Enterprise Evaluation Queries}
+\label{tab:benchmark_queries}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{cllll}
+\toprule
+\textbf{ID} & \textbf{Query Category} & \textbf{Representative Natural Language Query} & \textbf{Primary Modality} & \textbf{Required Ground Truth Tool} \\
+\midrule
+Q01 & Parametric / Definitional & ``What is the mathematical definition of gross profit margin?'' & Parametric Memory & None (Gating Bypass) \\
+Q02 & Parametric / Arithmetic   & ``Calculate 450 * 1.08 to find the gross price with 8\% sales tax.'' & Parametric Memory & None (Gating Bypass) \\
+Q03 & Parametric / Definitional & ``Explain the fundamental difference between GAAP and IFRS revenue recognition.'' & Parametric Memory & None (Gating Bypass) \\
+Q04 & Parametric / Arithmetic   & ``Convert 1,250 kilometers into statute miles.'' & Parametric Memory & None (Gating Bypass) \\
+Q05 & Parametric / Syntactic    & ``Draft a professional 2-sentence acknowledgment for a customer refund request.'' & Parametric Memory & None (Gating Bypass) \\
+\midrule
+Q06 & Real-Time Inventory / SQL & ``What is the current in-stock inventory count for Quantum X Laptop?'' & Relational DB & \texttt{sql\_inventory\_ledger} \\
+Q07 & Real-Time Sales / SQL     & ``Retrieve the top 3 best-selling products by revenue in Q1 2026.'' & Relational DB & \texttt{sql\_sales\_orders} \\
+Q08 & Real-Time Inventory / SQL & ``List all warehouse locations with less than 20 units of SKU-8841.'' & Relational DB & \texttt{sql\_warehouse\_stock} \\
+Q09 & Real-Time Sales / SQL     & ``What was the aggregate total sales revenue recorded yesterday?'' & Relational DB & \texttt{sql\_daily\_transactions} \\
+Q10 & Real-Time Inventory / SQL & ``Find the unit wholesale cost and retail price for Product-104.'' & Relational DB & \texttt{sql\_product\_pricing} \\
+\midrule
+Q11 & Policy / Unstructured Doc & ``What is the maximum allowable hotel reimbursement under the 2026 travel policy?'' & Compliance PDF & \texttt{doc\_travel\_handbook} \\
+Q12 & Policy / Unstructured Doc & ``What are the mandatory notice requirements for employee voluntary resignation?'' & HR Handbook PDF & \texttt{doc\_hr\_guidelines} \\
+Q13 & Policy / Unstructured Doc & ``What is the corporate data retention policy for customer credit card records?'' & Security Manual & \texttt{doc\_compliance\_sop} \\
+Q14 & Policy / Unstructured Doc & ``Under what conditions does the hardware warranty cover accidental water damage?'' & Warranty Docs & \texttt{doc\_warranty\_terms} \\
+Q15 & Policy / Unstructured Doc & ``Describe the mandatory escalation procedure for Sev-1 infrastructure outages.'' & Operations SOP & \texttt{doc\_incident\_runbook} \\
+\midrule
+Q16 & Multi-Source / Conflict   & ``Verify current stock and list price for Quantum X across ERP and PDF manual.'' & SQL + PDF + API & \texttt{sql\_ledger} $\oplus$ \texttt{doc\_manual} (Discrepancy) \\
+Q17 & Multi-Source / Conflict   & ``Cross-reference vendor discount rate between Master Agreement and live invoicing.'' & API + SQL & \texttt{api\_vendor} $\oplus$ \texttt{sql\_invoices} (Discrepancy) \\
+Q18 & Multi-Source / Conflict   & ``Compare Q4 marketing expenditure recorded in ledger vs quarterly summary report.'' & SQL + Doc & \texttt{sql\_ledger} $\oplus$ \texttt{doc\_report} (Discrepancy) \\
+Q19 & Multi-Source / Real-Time  & ``Fetch dynamic freight rate for 500kg shipment and compare with contractual cap.'' & REST API + PDF & \texttt{api\_freight} $\oplus$ \texttt{doc\_logistics} \\
+Q20 & Multi-Source / Real-Time  & ``Reconcile open purchase orders with warehouse receiving dock scan status.'' & SQL + REST API & \texttt{sql\_orders} $\oplus$ \texttt{api\_receiving} \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+\subsection{Comparative Baselines}
+To rigorously evaluate each architectural component, AMORA is evaluated against five representative baselines:
+\begin{enumerate}
+    \item \textbf{Baseline 1 (Standard RAG \cite{lewis2020rag}):} Canonical RAG architecture executing unconditional vector similarity retrieval on every incoming query ($\Pr(\text{retrieve}) = 1.0$) over unstructured text passages, ignoring relational databases and APIs.
+    \item \textbf{Baseline 2 (INKER Pipeline \cite{inker2024}):} Incorporates the IE-KRT adaptive knowledge retrieval trigger to conditionally bypass retrieval, but utilizes standard cosine similarity ranking across text-only document stores without multi-objective routing or conflict graph extraction.
+    \item \textbf{Baseline 3 (Similarity-Only Multi-Source Routing):} Dispatches queries across heterogeneous modalities (SQL, API, PDF) solely using dense vector cosine similarity ($W_r = 1.0, W_l = W_f = W_c = W_h = W_k = 0.0$), with unconditional retrieval on every query.
+    \item \textbf{Baseline 4 (Fixed-Weight Multi-Objective Routing):} Evaluates all six multi-objective dimensions across endpoints, but utilizes static, uniform objective weights ($W_j = 1/6 \approx 0.1667$) without query-adaptive shift mechanisms.
+    \item \textbf{Baseline 5 (AMORA Full - Proposed):} The complete framework incorporating IE-KRT adaptive gating, two-stage vector pre-filtering, dynamic simplex weight optimization, and evidence fusion with numerical conflict detection.
+    \item \textbf{Baseline 6 (Random Source Selection):} Serves as the stochastic lower bound, uniformly selecting active catalog endpoints at random without semantic or objective evaluation.
+\end{enumerate}
+
+\subsection{Evaluation Metrics}
+Performance is measured across three orthogonal evaluation axes:
+\begin{itemize}
+    \item \textbf{Information Retrieval Effectiveness:}
+    \begin{itemize}
+        \item \textbf{Precision@5 (P@5):} The fraction of top-5 selected endpoints that are ground-truth relevant to the query intent.
+        \item \textbf{Recall@5 (R@5):} The proportion of ground-truth required endpoints successfully captured in the top-5 candidate set.
+        \item \textbf{Mean Reciprocal Rank (MRR):} The average reciprocal rank of the first relevant endpoint: $\text{MRR} = \frac{1}{|Q|} \sum_{i=1}^{|Q|} \frac{1}{\text{rank}_i}$.
+        \item \textbf{Normalized Discounted Cumulative Gain (nDCG@5):} Evaluates the graded relevance of retrieved endpoints discounted logarithmically by rank position.
+    \end{itemize}
+    \item \textbf{Computational Efficiency and System Workload:}
+    \begin{itemize}
+        \item \textbf{Retrieval Trigger Rate ($\%$):} Percentage of queries triggering external tool execution ($100\% - \text{Bypass Rate}$).
+        \item \textbf{Prompt Token Footprint:} Exact token count of the compiled prompt context fed to the generator.
+        \item \textbf{End-to-End Latency ($\text{ms}$):} Total roundtrip response wall-clock time from query submission to final token decoding.
+    \end{itemize}
+    \item \textbf{Catalog Scalability:}
+    \begin{itemize}
+        \item \textbf{Routing Latency ($\text{ms}$):} Wall-clock time required to select top candidates across catalog sizes $N \in [100, 10{,}000]$.
+        \item \textbf{Source Reduction Ratio ($\text{SRR}$):} Fraction of catalog pruned prior to downstream profiling ($1 - M/N$).
+    \end{itemize}
+\end{itemize}

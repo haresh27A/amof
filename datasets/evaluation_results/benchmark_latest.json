@@ -1,0 +1,1511 @@
+{
+  "baselines_summary": {
+    "Baseline 1: Standard RAG": {
+      "precision_at_5": 0.0667,
+      "recall_at_5": 0.3333,
+      "mrr": 0.3333,
+      "ndcg_at_5": 0.3333,
+      "f1_score": 0.0481,
+      "exact_match": 0.0,
+      "avg_latency_ms": 1000.51,
+      "avg_prompt_tokens": 332.7,
+      "retrieval_rate": 1.0,
+      "sample_count": 3
+    },
+    "Baseline 2: INKER-inspired Pipeline": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "mrr": 0.8333,
+      "ndcg_at_5": 0.877,
+      "f1_score": 0.0957,
+      "exact_match": 0.0,
+      "avg_latency_ms": 2153.64,
+      "avg_prompt_tokens": 428.3,
+      "retrieval_rate": 1.0,
+      "sample_count": 3
+    },
+    "Baseline 3: Similarity-only Source Routing": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "mrr": 0.8333,
+      "ndcg_at_5": 0.877,
+      "f1_score": 0.0957,
+      "exact_match": 0.0,
+      "avg_latency_ms": 2110.85,
+      "avg_prompt_tokens": 428.3,
+      "retrieval_rate": 1.0,
+      "sample_count": 3
+    },
+    "Baseline 4: Fixed-Weight Multi-Objective Routing": {
+      "precision_at_5": 0.0667,
+      "recall_at_5": 0.3333,
+      "mrr": 0.3333,
+      "ndcg_at_5": 0.3333,
+      "f1_score": 0.0481,
+      "exact_match": 0.0,
+      "avg_latency_ms": 2072.63,
+      "avg_prompt_tokens": 317.7,
+      "retrieval_rate": 1.0,
+      "sample_count": 3
+    },
+    "Baseline 5: AMORA Dynamic-Weight Routing (Full)": {
+      "precision_at_5": 0.0667,
+      "recall_at_5": 0.3333,
+      "mrr": 0.3333,
+      "ndcg_at_5": 0.3333,
+      "f1_score": 0.0551,
+      "exact_match": 0.0,
+      "avg_latency_ms": 2097.88,
+      "avg_prompt_tokens": 315.7,
+      "retrieval_rate": 1.0,
+      "sample_count": 3
+    },
+    "Baseline 6: Random Source Selection": {
+      "precision_at_5": 0.0667,
+      "recall_at_5": 0.3333,
+      "mrr": 0.3333,
+      "ndcg_at_5": 0.3333,
+      "f1_score": 0.0729,
+      "exact_match": 0.0,
+      "avg_latency_ms": 2067.57,
+      "avg_prompt_tokens": 331.3,
+      "retrieval_rate": 1.0,
+      "sample_count": 3
+    }
+  },
+  "scalability_experiment": [
+    {
+      "source_catalog_size": 100,
+      "routing_latency_ms": 6.12,
+      "memory_used_mb": 0.07,
+      "candidate_count_stage1": 55,
+      "top_k_selected": 5,
+      "source_reduction_ratio": 0.9091
+    },
+    {
+      "source_catalog_size": 1000,
+      "routing_latency_ms": 4.65,
+      "memory_used_mb": 0.04,
+      "candidate_count_stage1": 55,
+      "top_k_selected": 5,
+      "source_reduction_ratio": 0.9091
+    },
+    {
+      "source_catalog_size": 5000,
+      "routing_latency_ms": 3.78,
+      "memory_used_mb": 0.01,
+      "candidate_count_stage1": 55,
+      "top_k_selected": 5,
+      "source_reduction_ratio": 0.9091
+    },
+    {
+      "source_catalog_size": 10000,
+      "routing_latency_ms": 3.35,
+      "memory_used_mb": 0.01,
+      "candidate_count_stage1": 55,
+      "top_k_selected": 5,
+      "source_reduction_ratio": 0.9091
+    }
+  ],
+  "ablation_study": {
+    "AMORA Full": {
+      "precision_at_5": 0.0667,
+      "recall_at_5": 0.3333,
+      "f1_score": 0.0551,
+      "exact_match": 0.0,
+      "avg_latency_ms": 543.15
+    },
+    "AMORA - No IE-KRT": {
+      "precision_at_5": 0.1333,
+      "recall_at_5": 0.6667,
+      "f1_score": 0.0548,
+      "exact_match": 0.0,
+      "avg_latency_ms": 628.58
+    },
+    "AMORA - Dynamic Weights (Fixed)": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "f1_score": 0.0957,
+      "exact_match": 0.0,
+      "avg_latency_ms": 519.01
+    },
+    "AMORA - Reliability": {
+      "precision_at_5": 0.1333,
+      "recall_at_5": 0.6667,
+      "f1_score": 0.0548,
+      "exact_match": 0.0,
+      "avg_latency_ms": 553.01
+    },
+    "AMORA - Freshness": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "f1_score": 0.0957,
+      "exact_match": 0.0,
+      "avg_latency_ms": 482.4
+    },
+    "AMORA - Historical Success": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "f1_score": 0.0957,
+      "exact_match": 0.0,
+      "avg_latency_ms": 520.8
+    },
+    "AMORA - Conflict Penalty": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "f1_score": 0.0957,
+      "exact_match": 0.0,
+      "avg_latency_ms": 610.63
+    },
+    "AMORA - Pre-filtering (Full Scan)": {
+      "precision_at_5": 0.2,
+      "recall_at_5": 1.0,
+      "f1_score": 0.0957,
+      "exact_match": 0.0,
+      "avg_latency_ms": 673.0
+    }
+  },
+  "detailed_baseline_outputs": {
+    "Baseline 1: Standard RAG": [
+      {
+        "baseline": "Baseline 1: Standard RAG",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_demo_vector"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'What is the current inventory stock quantity of Quantum X Laptop?'**:\n\n[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\n[Source: Customer Support Vector Knowledge Store]\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 336,
+          "output_tokens": 65,
+          "total_tokens": 401,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 503 Server Error: Service Unavailable for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?k",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:29:42.436931+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.75,
+              "fused_score": 0.834
+            },
+            {
+              "source_id": "src_demo_vector",
+              "source_name": "Customer Support Vector Knowledge Store",
+              "tool": "vector_tool",
+              "content": "FAISS Vector Retrieval [Customer Support Vector Knowledge Store]: Retracted dense passages with top semantic alignment for 'What is the current inventory stock quantity of Quantum X Laptop?'. Context: High-confidence semantic chunk with embedding similarity score 0.89.",
+              "timestamp": "2026-10-27T08:29:42.454922+00:00",
+              "retrieval_score": 0.89,
+              "source_score": 0.75,
+              "fused_score": 0.806
+            }
+          ],
+          "conflict_detected": true,
+          "conflict_score": 0.3,
+          "flagged_conflicts": [
+            {
+              "type": "numeric_disagreement",
+              "sources": [
+                "Company Policy & Legal Documentation",
+                "Customer Support Vector Knowledge Store"
+              ],
+              "details": "Disagreement in numeric values between Company Policy & Legal Documentation (['2', '12', '30']) and Customer Support Vector Knowledge Store (['0.89'])."
+            }
+          ],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Customer Support Vector Knowledge Store]\nFAISS Vector Retrieval [Customer Support Vector Knowledge Store]: Retracted dense passages with top semantic alignment for 'What is the current inventory stock quantity of Quantum X Laptop?'. Context: High-confidence semantic chunk with embedding similarity score 0.89."
+        },
+        "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+        "measured_latency_ms": 2097.9,
+        "prompt_tokens": 336,
+        "output_tokens": 65,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.0,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 1: Standard RAG",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_demo_vector"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What does the company return policy say about unopened merchandise?'**:\n\n- **Return Window:** Unopened merchandise may be returned within **30 calendar days** from delivery for a 100% full refund [Source: Company Policy & Legal Documentation].\n- **Item Condition:** Must be in original packaging with serial tags intact [Source: Company Policy & Legal Documentation].\n- **Warranty Protection:** Hardware includes a **12-month manufacturer limited warranty** [Source: Company Policy & Legal Documentation].\n- **Refund Timeline:** Processed within **5-7 business days** upon return receipt [Source: Company Policy & Legal Documentation].",
+          "prompt_tokens": 334,
+          "output_tokens": 126,
+          "total_tokens": 460,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:10.671705+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.75,
+              "fused_score": 0.834
+            },
+            {
+              "source_id": "src_demo_vector",
+              "source_name": "Customer Support Vector Knowledge Store",
+              "tool": "vector_tool",
+              "content": "FAISS Vector Retrieval [Customer Support Vector Knowledge Store]: Retracted dense passages with top semantic alignment for 'What does the company return policy say about unopened merchandise?'. Context: High-confidence semantic chunk with embedding similarity score 0.89.",
+              "timestamp": "2026-10-27T08:30:10.707806+00:00",
+              "retrieval_score": 0.89,
+              "source_score": 0.75,
+              "fused_score": 0.806
+            }
+          ],
+          "conflict_detected": true,
+          "conflict_score": 0.3,
+          "flagged_conflicts": [
+            {
+              "type": "numeric_disagreement",
+              "sources": [
+                "Company Policy & Legal Documentation",
+                "Customer Support Vector Knowledge Store"
+              ],
+              "details": "Disagreement in numeric values between Company Policy & Legal Documentation (['2', '12', '30']) and Customer Support Vector Knowledge Store (['0.89'])."
+            }
+          ],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Customer Support Vector Knowledge Store]\nFAISS Vector Retrieval [Customer Support Vector Knowledge Store]: Retracted dense passages with top semantic alignment for 'What does the company return policy say about unopened merchandise?'. Context: High-confidence semantic chunk with embedding similarity score 0.89."
+        },
+        "query": "What does the company return policy say about unopened merchandise?",
+        "measured_latency_ms": 486.88,
+        "prompt_tokens": 334,
+        "output_tokens": 126,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.1443298969072165,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 1: Standard RAG",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_demo_vector"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'Which product has generated the highest sales revenue?'**:\n\n[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\n[Source: Customer Support Vector Knowledge Store]\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 328,
+          "output_tokens": 61,
+          "total_tokens": 389,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:13.849825+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.75,
+              "fused_score": 0.834
+            },
+            {
+              "source_id": "src_demo_vector",
+              "source_name": "Customer Support Vector Knowledge Store",
+              "tool": "vector_tool",
+              "content": "FAISS Vector Retrieval [Customer Support Vector Knowledge Store]: Retracted dense passages with top semantic alignment for 'Which product has generated the highest sales revenue?'. Context: High-confidence semantic chunk with embedding similarity score 0.89.",
+              "timestamp": "2026-10-27T08:30:13.896083+00:00",
+              "retrieval_score": 0.89,
+              "source_score": 0.75,
+              "fused_score": 0.806
+            }
+          ],
+          "conflict_detected": true,
+          "conflict_score": 0.3,
+          "flagged_conflicts": [
+            {
+              "type": "numeric_disagreement",
+              "sources": [
+                "Company Policy & Legal Documentation",
+                "Customer Support Vector Knowledge Store"
+              ],
+              "details": "Disagreement in numeric values between Company Policy & Legal Documentation (['2', '12', '30']) and Customer Support Vector Knowledge Store (['0.89'])."
+            }
+          ],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Customer Support Vector Knowledge Store]\nFAISS Vector Retrieval [Customer Support Vector Knowledge Store]: Retracted dense passages with top semantic alignment for 'Which product has generated the highest sales revenue?'. Context: High-confidence semantic chunk with embedding similarity score 0.89."
+        },
+        "query": "Which product has generated the highest sales revenue?",
+        "measured_latency_ms": 416.74,
+        "prompt_tokens": 328,
+        "output_tokens": 61,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.0,
+        "em": 0.0
+      }
+    ],
+    "Baseline 2: INKER-inspired Pipeline": [
+      {
+        "baseline": "Baseline 2: INKER-inspired Pipeline",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_sql",
+          "src_demo_doc",
+          "src_demo_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What is the current inventory stock quantity of Quantum X Laptop?'**:\n\n- **Stock Quantity:** **45 units** currently available in stock [Source: Enterprise Sales & Inventory Database].\n- **Warehouse Location:** `Warehouse A - Rack 12` [Source: Enterprise Sales & Inventory Database].\n- **Unit Price:** **$1,299.99** [Source: Enterprise Sales & Inventory Database].\n- **Last Restock Date:** August 1, 2026 [Source: Enterprise Sales & Inventory Database].",
+          "prompt_tokens": 430,
+          "output_tokens": 96,
+          "total_tokens": 526,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: Google Gemini API timed out after 5s for model gemini-flash-latest",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:29:44.583617+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.8,
+              "fused_score": 0.864
+            },
+            {
+              "source_id": "src_demo_sql",
+              "source_name": "Enterprise Sales & Inventory Database",
+              "tool": "sql_tool",
+              "content": "SQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\n\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\n\nTable 'orders':\n[{'order_id': 'ORD-9001', 'customer_name': 'Alice Smith', 'product_id': 'P-101', 'quantity': 2, 'total_amount': 2599.98, 'order_date': '2026-08-02'}, {'order_id': 'ORD-9002', 'customer_name': 'Bob Jones', 'product_id': 'P-102', 'quantity': 1, 'total_amount': 199.99, 'order_date': '2026-08-03'}, {'order_id': 'ORD-9003', 'customer_name': 'Carol White', 'product_id': 'P-101', 'quantity': 5, 'total_amount': 6499.95, 'order_date': '2026-08-06'}]",
+              "timestamp": "2026-10-27T08:29:44.541320+00:00",
+              "retrieval_score": 0.95,
+              "source_score": 0.8,
+              "fused_score": 0.86
+            },
+            {
+              "source_id": "src_demo_api",
+              "source_name": "Product Specs & Pricing REST API",
+              "tool": "api_tool",
+              "content": "REST API [Product Specs & Pricing REST API] payload retrieved for query 'Laptop Quantum What current inventory stock quantity X real-time inventory stock levels': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:29:44.599648+00:00'}",
+              "timestamp": "2026-10-27T08:29:44.599648+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.8,
+              "fused_score": 0.832
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Enterprise Sales & Inventory Database]\nSQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\nTable 'orders':"
+        },
+        "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+        "measured_latency_ms": 5402.73,
+        "prompt_tokens": 430,
+        "output_tokens": 96,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.14285714285714288,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 2: INKER-inspired Pipeline",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_sql",
+          "src_demo_doc",
+          "src_demo_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What does the company return policy say about unopened merchandise?'**:\n\n- **Return Window:** Unopened merchandise may be returned within **30 calendar days** from delivery for a 100% full refund [Source: Company Policy & Legal Documentation].\n- **Item Condition:** Must be in original packaging with serial tags intact [Source: Company Policy & Legal Documentation].\n- **Warranty Protection:** Hardware includes a **12-month manufacturer limited warranty** [Source: Company Policy & Legal Documentation].\n- **Refund Timeline:** Processed within **5-7 business days** upon return receipt [Source: Company Policy & Legal Documentation].",
+          "prompt_tokens": 429,
+          "output_tokens": 126,
+          "total_tokens": 555,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:11.182461+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.8,
+              "fused_score": 0.864
+            },
+            {
+              "source_id": "src_demo_sql",
+              "source_name": "Enterprise Sales & Inventory Database",
+              "tool": "sql_tool",
+              "content": "SQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\n\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\n\nTable 'orders':\n[{'order_id': 'ORD-9001', 'customer_name': 'Alice Smith', 'product_id': 'P-101', 'quantity': 2, 'total_amount': 2599.98, 'order_date': '2026-08-02'}, {'order_id': 'ORD-9002', 'customer_name': 'Bob Jones', 'product_id': 'P-102', 'quantity': 1, 'total_amount': 199.99, 'order_date': '2026-08-03'}, {'order_id': 'ORD-9003', 'customer_name': 'Carol White', 'product_id': 'P-101', 'quantity': 5, 'total_amount': 6499.95, 'order_date': '2026-08-06'}]",
+              "timestamp": "2026-10-27T08:30:11.159467+00:00",
+              "retrieval_score": 0.95,
+              "source_score": 0.8,
+              "fused_score": 0.86
+            },
+            {
+              "source_id": "src_demo_api",
+              "source_name": "Product Specs & Pricing REST API",
+              "tool": "api_tool",
+              "content": "REST API [Product Specs & Pricing REST API] payload retrieved for query 'What does company return policy say about unopened official company policies document': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:11.196473+00:00'}",
+              "timestamp": "2026-10-27T08:30:11.196473+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.8,
+              "fused_score": 0.832
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Enterprise Sales & Inventory Database]\nSQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\nTable 'orders':"
+        },
+        "query": "What does the company return policy say about unopened merchandise?",
+        "measured_latency_ms": 512.75,
+        "prompt_tokens": 429,
+        "output_tokens": 126,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 0.5,
+        "ndcg5": 0.6309297535714575,
+        "f1": 0.1443298969072165,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 2: INKER-inspired Pipeline",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_sql",
+          "src_demo_doc",
+          "src_demo_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'Which product has generated the highest sales revenue?'**:\n\n[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\n[Source: Enterprise Sales & Inventory Database]\nTable 'products':\nTable 'inventory':\nTable 'orders':\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 426,
+          "output_tokens": 68,
+          "total_tokens": 494,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:14.316856+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.8,
+              "fused_score": 0.864
+            },
+            {
+              "source_id": "src_demo_sql",
+              "source_name": "Enterprise Sales & Inventory Database",
+              "tool": "sql_tool",
+              "content": "SQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\n\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\n\nTable 'orders':\n[{'order_id': 'ORD-9001', 'customer_name': 'Alice Smith', 'product_id': 'P-101', 'quantity': 2, 'total_amount': 2599.98, 'order_date': '2026-08-02'}, {'order_id': 'ORD-9002', 'customer_name': 'Bob Jones', 'product_id': 'P-102', 'quantity': 1, 'total_amount': 199.99, 'order_date': '2026-08-03'}, {'order_id': 'ORD-9003', 'customer_name': 'Carol White', 'product_id': 'P-101', 'quantity': 5, 'total_amount': 6499.95, 'order_date': '2026-08-06'}]",
+              "timestamp": "2026-10-27T08:30:14.267231+00:00",
+              "retrieval_score": 0.95,
+              "source_score": 0.8,
+              "fused_score": 0.86
+            },
+            {
+              "source_id": "src_demo_api",
+              "source_name": "Product Specs & Pricing REST API",
+              "tool": "api_tool",
+              "content": "REST API [Product Specs & Pricing REST API] payload retrieved for query 'Which product has generated highest sales revenue? order records database query': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:14.332542+00:00'}",
+              "timestamp": "2026-10-27T08:30:14.332542+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.8,
+              "fused_score": 0.832
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Enterprise Sales & Inventory Database]\nSQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\nTable 'orders':"
+        },
+        "query": "Which product has generated the highest sales revenue?",
+        "measured_latency_ms": 545.45,
+        "prompt_tokens": 426,
+        "output_tokens": 68,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.0,
+        "em": 0.0
+      }
+    ],
+    "Baseline 3: Similarity-only Source Routing": [
+      {
+        "baseline": "Baseline 3: Similarity-only Source Routing",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_sql",
+          "src_demo_doc",
+          "src_demo_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What is the current inventory stock quantity of Quantum X Laptop?'**:\n\n- **Stock Quantity:** **45 units** currently available in stock [Source: Enterprise Sales & Inventory Database].\n- **Warehouse Location:** `Warehouse A - Rack 12` [Source: Enterprise Sales & Inventory Database].\n- **Unit Price:** **$1,299.99** [Source: Enterprise Sales & Inventory Database].\n- **Last Restock Date:** August 1, 2026 [Source: Enterprise Sales & Inventory Database].",
+          "prompt_tokens": 430,
+          "output_tokens": 96,
+          "total_tokens": 526,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: Google Gemini API timed out after 5s for model gemini-flash-latest",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:29:49.966022+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.5,
+              "fused_score": 0.684
+            },
+            {
+              "source_id": "src_demo_sql",
+              "source_name": "Enterprise Sales & Inventory Database",
+              "tool": "sql_tool",
+              "content": "SQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\n\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\n\nTable 'orders':\n[{'order_id': 'ORD-9001', 'customer_name': 'Alice Smith', 'product_id': 'P-101', 'quantity': 2, 'total_amount': 2599.98, 'order_date': '2026-08-02'}, {'order_id': 'ORD-9002', 'customer_name': 'Bob Jones', 'product_id': 'P-102', 'quantity': 1, 'total_amount': 199.99, 'order_date': '2026-08-03'}, {'order_id': 'ORD-9003', 'customer_name': 'Carol White', 'product_id': 'P-101', 'quantity': 5, 'total_amount': 6499.95, 'order_date': '2026-08-06'}]",
+              "timestamp": "2026-10-27T08:29:49.948028+00:00",
+              "retrieval_score": 0.95,
+              "source_score": 0.5,
+              "fused_score": 0.68
+            },
+            {
+              "source_id": "src_demo_api",
+              "source_name": "Product Specs & Pricing REST API",
+              "tool": "api_tool",
+              "content": "REST API [Product Specs & Pricing REST API] payload retrieved for query 'What is the current inventory stock quantity of Quantum X Laptop?': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:29:49.980784+00:00'}",
+              "timestamp": "2026-10-27T08:29:49.980784+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.5,
+              "fused_score": 0.652
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Enterprise Sales & Inventory Database]\nSQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\nTable 'orders':"
+        },
+        "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+        "measured_latency_ms": 5200.96,
+        "prompt_tokens": 430,
+        "output_tokens": 96,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.14285714285714288,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 3: Similarity-only Source Routing",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_sql",
+          "src_demo_doc",
+          "src_demo_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What does the company return policy say about unopened merchandise?'**:\n\n- **Return Window:** Unopened merchandise may be returned within **30 calendar days** from delivery for a 100% full refund [Source: Company Policy & Legal Documentation].\n- **Item Condition:** Must be in original packaging with serial tags intact [Source: Company Policy & Legal Documentation].\n- **Warranty Protection:** Hardware includes a **12-month manufacturer limited warranty** [Source: Company Policy & Legal Documentation].\n- **Refund Timeline:** Processed within **5-7 business days** upon return receipt [Source: Company Policy & Legal Documentation].",
+          "prompt_tokens": 429,
+          "output_tokens": 126,
+          "total_tokens": 555,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:11.732827+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.5,
+              "fused_score": 0.684
+            },
+            {
+              "source_id": "src_demo_sql",
+              "source_name": "Enterprise Sales & Inventory Database",
+              "tool": "sql_tool",
+              "content": "SQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\n\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\n\nTable 'orders':\n[{'order_id': 'ORD-9001', 'customer_name': 'Alice Smith', 'product_id': 'P-101', 'quantity': 2, 'total_amount': 2599.98, 'order_date': '2026-08-02'}, {'order_id': 'ORD-9002', 'customer_name': 'Bob Jones', 'product_id': 'P-102', 'quantity': 1, 'total_amount': 199.99, 'order_date': '2026-08-03'}, {'order_id': 'ORD-9003', 'customer_name': 'Carol White', 'product_id': 'P-101', 'quantity': 5, 'total_amount': 6499.95, 'order_date': '2026-08-06'}]",
+              "timestamp": "2026-10-27T08:30:11.675663+00:00",
+              "retrieval_score": 0.95,
+              "source_score": 0.5,
+              "fused_score": 0.68
+            },
+            {
+              "source_id": "src_demo_api",
+              "source_name": "Product Specs & Pricing REST API",
+              "tool": "api_tool",
+              "content": "REST API [Product Specs & Pricing REST API] payload retrieved for query 'What does the company return policy say about unopened merchandise?': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:11.767361+00:00'}",
+              "timestamp": "2026-10-27T08:30:11.767361+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.5,
+              "fused_score": 0.652
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Enterprise Sales & Inventory Database]\nSQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\nTable 'orders':"
+        },
+        "query": "What does the company return policy say about unopened merchandise?",
+        "measured_latency_ms": 540.06,
+        "prompt_tokens": 429,
+        "output_tokens": 126,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 0.5,
+        "ndcg5": 0.6309297535714575,
+        "f1": 0.1443298969072165,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 3: Similarity-only Source Routing",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_sql",
+          "src_demo_doc",
+          "src_demo_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'Which product has generated the highest sales revenue?'**:\n\n[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\n[Source: Enterprise Sales & Inventory Database]\nTable 'products':\nTable 'inventory':\nTable 'orders':\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 426,
+          "output_tokens": 68,
+          "total_tokens": 494,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:14.867213+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.5,
+              "fused_score": 0.684
+            },
+            {
+              "source_id": "src_demo_sql",
+              "source_name": "Enterprise Sales & Inventory Database",
+              "tool": "sql_tool",
+              "content": "SQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\n\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\n\nTable 'orders':\n[{'order_id': 'ORD-9001', 'customer_name': 'Alice Smith', 'product_id': 'P-101', 'quantity': 2, 'total_amount': 2599.98, 'order_date': '2026-08-02'}, {'order_id': 'ORD-9002', 'customer_name': 'Bob Jones', 'product_id': 'P-102', 'quantity': 1, 'total_amount': 199.99, 'order_date': '2026-08-03'}, {'order_id': 'ORD-9003', 'customer_name': 'Carol White', 'product_id': 'P-101', 'quantity': 5, 'total_amount': 6499.95, 'order_date': '2026-08-06'}]",
+              "timestamp": "2026-10-27T08:30:14.817197+00:00",
+              "retrieval_score": 0.95,
+              "source_score": 0.5,
+              "fused_score": 0.68
+            },
+            {
+              "source_id": "src_demo_api",
+              "source_name": "Product Specs & Pricing REST API",
+              "tool": "api_tool",
+              "content": "REST API [Product Specs & Pricing REST API] payload retrieved for query 'Which product has generated the highest sales revenue?': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:14.882739+00:00'}",
+              "timestamp": "2026-10-27T08:30:14.882739+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.5,
+              "fused_score": 0.652
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Enterprise Sales & Inventory Database]\nSQL DB Result:\nTable 'products':\n[{'product_id': 'P-101', 'name': 'Quantum X Laptop', 'category': 'Electronics', 'unit_price': 1299.99, 'supplier': 'TechCorp'}, {'product_id': 'P-102', 'name': 'Aura Pro Wireless Headphones', 'category': 'Audio', 'unit_price': 199.99, 'supplier': 'SoundMax'}, {'product_id': 'P-103', 'name': 'Ergonomic Lumbar Office Chair', 'category': 'Furniture', 'unit_price': 299.5, 'supplier': 'ComfortDesign'}, {'product_id': 'P-104', 'name': 'UltraHD 4K Smart Monitor', 'category': 'Electronics', 'unit_price': 450.0, 'supplier': 'DisplayVision'}]\nTable 'inventory':\n[{'product_id': 'P-101', 'stock_quantity': 45, 'warehouse_location': 'Warehouse A - Rack 12', 'last_restock_date': '2026-08-01'}, {'product_id': 'P-102', 'stock_quantity': 120, 'warehouse_location': 'Warehouse B - Rack 04', 'last_restock_date': '2026-08-05'}, {'product_id': 'P-103', 'stock_quantity': 18, 'warehouse_location': 'Warehouse A - Rack 08', 'last_restock_date': '2026-07-20'}, {'product_id': 'P-104', 'stock_quantity': 60, 'warehouse_location': 'Warehouse C - Rack 02', 'last_restock_date': '2026-08-07'}]\nTable 'orders':"
+        },
+        "query": "Which product has generated the highest sales revenue?",
+        "measured_latency_ms": 591.54,
+        "prompt_tokens": 426,
+        "output_tokens": 68,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.0,
+        "em": 0.0
+      }
+    ],
+    "Baseline 4: Fixed-Weight Multi-Objective Routing": [
+      {
+        "baseline": "Baseline 4: Fixed-Weight Multi-Objective Routing",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_it_incident_postmortems",
+          "src_spec_quantum_laptop",
+          "src_spec_aura_headphones"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'What is the current inventory stock quantity of Quantum X Laptop?'**:\n\n[Source: IT Major Incident Post-Mortems & RCA Archive]\n[Source: Quantum X Laptop Engineering Datasheets & Schematics]\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 332,
+          "output_tokens": 66,
+          "total_tokens": 398,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: Google Gemini API timed out after 5s for model gemini-flash-latest",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_it_incident_postmortems",
+              "source_name": "IT Major Incident Post-Mortems & RCA Archive",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [IT Major Incident Post-Mortems & RCA Archive]: Extracted relevant policy/spec sections for query 'What is the current inventory stock quantity of Quantum X Laptop?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:29:55.147706+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.6214,
+              "fused_score": 0.7208
+            },
+            {
+              "source_id": "src_spec_quantum_laptop",
+              "source_name": "Quantum X Laptop Engineering Datasheets & Schematics",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [Quantum X Laptop Engineering Datasheets & Schematics]: Extracted relevant policy/spec sections for query 'What is the current inventory stock quantity of Quantum X Laptop?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:29:55.160350+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.6214,
+              "fused_score": 0.7208
+            },
+            {
+              "source_id": "src_spec_aura_headphones",
+              "source_name": "Aura Pro Wireless Headphones Acoustic & ANC Architecture",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [Aura Pro Wireless Headphones Acoustic & ANC Architecture]: Extracted relevant policy/spec sections for query 'What is the current inventory stock quantity of Quantum X Laptop?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:29:55.174514+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.6214,
+              "fused_score": 0.7208
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: IT Major Incident Post-Mortems & RCA Archive]\nDocument Retrieval [IT Major Incident Post-Mortems & RCA Archive]: Extracted relevant policy/spec sections for query 'What is the current inventory stock quantity of Quantum X Laptop?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.\n\n[Source: Quantum X Laptop Engineering Datasheets & Schematics]\nDocument Retrieval [Quantum X Laptop Engineering Datasheets & Schematics]: Extracted relevant policy/spec sections for query 'What is the current inventory stock quantity of Quantum X Laptop?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt."
+        },
+        "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+        "measured_latency_ms": 5151.82,
+        "prompt_tokens": 332,
+        "output_tokens": 66,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.0,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 4: Fixed-Weight Multi-Objective Routing",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_industry_trends_report",
+          "src_sales_pos_na"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What does the company return policy say about unopened merchandise?'**:\n\n- **Return Window:** Unopened merchandise may be returned within **30 calendar days** from delivery for a 100% full refund [Source: Company Policy & Legal Documentation].\n- **Item Condition:** Must be in original packaging with serial tags intact [Source: Company Policy & Legal Documentation].\n- **Warranty Protection:** Hardware includes a **12-month manufacturer limited warranty** [Source: Company Policy & Legal Documentation].\n- **Refund Timeline:** Processed within **5-7 business days** upon return receipt [Source: Company Policy & Legal Documentation].",
+          "prompt_tokens": 343,
+          "output_tokens": 126,
+          "total_tokens": 469,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:12.219389+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.621,
+              "fused_score": 0.7566
+            },
+            {
+              "source_id": "src_industry_trends_report",
+              "source_name": "IDC & Gartner Global Hardware Market Trends 2026",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [IDC & Gartner Global Hardware Market Trends 2026]: Extracted relevant policy/spec sections for query 'What does the company return policy say about unopened merchandise?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:30:12.266296+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.6191,
+              "fused_score": 0.7195
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: IDC & Gartner Global Hardware Market Trends 2026]\nDocument Retrieval [IDC & Gartner Global Hardware Market Trends 2026]: Extracted relevant policy/spec sections for query 'What does the company return policy say about unopened merchandise?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt."
+        },
+        "query": "What does the company return policy say about unopened merchandise?",
+        "measured_latency_ms": 537.95,
+        "prompt_tokens": 343,
+        "output_tokens": 126,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.1443298969072165,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 4: Fixed-Weight Multi-Objective Routing",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_sales_pos_emea",
+          "src_warehouse_west"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'Which product has generated the highest sales revenue?'**:\n\n[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 278,
+          "output_tokens": 53,
+          "total_tokens": 331,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:15.407010+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.621,
+              "fused_score": 0.7566
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories."
+        },
+        "query": "Which product has generated the highest sales revenue?",
+        "measured_latency_ms": 528.12,
+        "prompt_tokens": 278,
+        "output_tokens": 53,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.0,
+        "em": 0.0
+      }
+    ],
+    "Baseline 5: AMORA Dynamic-Weight Routing (Full)": [
+      {
+        "baseline": "Baseline 5: AMORA Dynamic-Weight Routing (Full)",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_iso9001_quality_manual",
+          "src_esg_sustainability_index",
+          "src_legal_msa_contracts"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'What is the current inventory stock quantity of Quantum X Laptop?'**:\n\n[Source: ISO 9001 Quality Management System (QMS) Procedures]\n[Source: Environmental, Social & Governance (ESG) Sustainability Metrics]\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 335,
+          "output_tokens": 66,
+          "total_tokens": 401,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: Google Gemini API timed out after 5s for model gemini-flash-latest",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_iso9001_quality_manual",
+              "source_name": "ISO 9001 Quality Management System (QMS) Procedures",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [ISO 9001 Quality Management System (QMS) Procedures]: Extracted relevant policy/spec sections for query 'Laptop Quantum What current inventory stock quantity X real-time inventory stock levels'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:30:00.330197+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.8163,
+              "fused_score": 0.8378
+            },
+            {
+              "source_id": "src_esg_sustainability_index",
+              "source_name": "Environmental, Social & Governance (ESG) Sustainability Metrics",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [Environmental, Social & Governance (ESG) Sustainability Metrics]: Extracted relevant policy/spec sections for query 'Laptop Quantum What current inventory stock quantity X real-time inventory stock levels'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:30:00.347198+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.8163,
+              "fused_score": 0.8378
+            },
+            {
+              "source_id": "src_legal_msa_contracts",
+              "source_name": "Enterprise Master Services Agreement (MSA) Repository",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [Enterprise Master Services Agreement (MSA) Repository]: Extracted relevant policy/spec sections for query 'Laptop Quantum What current inventory stock quantity X real-time inventory stock levels'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:30:00.360723+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.8161,
+              "fused_score": 0.8377
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: ISO 9001 Quality Management System (QMS) Procedures]\nDocument Retrieval [ISO 9001 Quality Management System (QMS) Procedures]: Extracted relevant policy/spec sections for query 'Laptop Quantum What current inventory stock quantity X real-time inventory stock levels'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.\n\n[Source: Environmental, Social & Governance (ESG) Sustainability Metrics]\nDocument Retrieval [Environmental, Social & Governance (ESG) Sustainability Metrics]: Extracted relevant policy/spec sections for query 'Laptop Quantum What current inventory stock quantity X real-time inventory stock levels'. Statement: Standard company policy permits returns within 30 days with original invoice receipt."
+        },
+        "routing_summary": {
+          "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+          "retrieval_query": "Laptop Quantum What current inventory stock quantity X real-time inventory stock levels",
+          "total_catalog_sources": 55,
+          "candidate_count": 55,
+          "weights": {
+            "relevance": 0.2885,
+            "reliability": 0.3846,
+            "freshness": 0.1442,
+            "cost": 0.0192,
+            "historical_success": 0.1442,
+            "conflict": 0.0192
+          },
+          "selected_sources": [
+            {
+              "source_id": "src_iso9001_quality_manual",
+              "name": "ISO 9001 Quality Management System (QMS) Procedures",
+              "source_type": "PDF Document",
+              "domain": "quality_standards",
+              "tool_type": "doc_tool",
+              "endpoint_or_schema": "./docs/iso9001_qms_standard_operating_procedures.pdf",
+              "score": 0.8163,
+              "relevance": 0.5,
+              "reliability": 1.0,
+              "freshness": 0.9959,
+              "cost": 0.02,
+              "historical_success": 1.0,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.899
+            },
+            {
+              "source_id": "src_esg_sustainability_index",
+              "name": "Environmental, Social & Governance (ESG) Sustainability Metrics",
+              "source_type": "PDF Document",
+              "domain": "esg_compliance",
+              "tool_type": "doc_tool",
+              "endpoint_or_schema": "./docs/esg_sustainability_report_2026.pdf",
+              "score": 0.8163,
+              "relevance": 0.5,
+              "reliability": 1.0,
+              "freshness": 0.9959,
+              "cost": 0.02,
+              "historical_success": 1.0,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.899
+            },
+            {
+              "source_id": "src_legal_msa_contracts",
+              "name": "Enterprise Master Services Agreement (MSA) Repository",
+              "source_type": "PDF Document",
+              "domain": "legal_contracts",
+              "tool_type": "doc_tool",
+              "endpoint_or_schema": "./docs/master_services_agreements.pdf",
+              "score": 0.8161,
+              "relevance": 0.5,
+              "reliability": 1.0,
+              "freshness": 0.9959,
+              "cost": 0.03,
+              "historical_success": 1.0,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.8989
+            }
+          ],
+          "allowed_tools": [
+            "doc_tool"
+          ],
+          "mode": "weighted",
+          "source_reduction_ratio": 0.945455
+        },
+        "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+        "measured_latency_ms": 5198.04,
+        "prompt_tokens": 335,
+        "output_tokens": 66,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.0,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 5: AMORA Dynamic-Weight Routing (Full)",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_iam_active_directory",
+          "src_sales_commission_db"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What does the company return policy say about unopened merchandise?'**:\n\n- **Return Window:** Unopened merchandise may be returned within **30 calendar days** from delivery for a 100% full refund [Source: Company Policy & Legal Documentation].\n- **Item Condition:** Must be in original packaging with serial tags intact [Source: Company Policy & Legal Documentation].\n- **Warranty Protection:** Hardware includes a **12-month manufacturer limited warranty** [Source: Company Policy & Legal Documentation].\n- **Refund Timeline:** Processed within **5-7 business days** upon return receipt [Source: Company Policy & Legal Documentation].",
+          "prompt_tokens": 280,
+          "output_tokens": 126,
+          "total_tokens": 406,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:12.752483+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.647,
+              "fused_score": 0.7722
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories."
+        },
+        "routing_summary": {
+          "query": "What does the company return policy say about unopened merchandise?",
+          "retrieval_query": "What does company return policy say about unopened official company policies document",
+          "total_catalog_sources": 55,
+          "candidate_count": 55,
+          "weights": {
+            "relevance": 0.3,
+            "reliability": 0.2,
+            "freshness": 0.15,
+            "cost": 0.1,
+            "historical_success": 0.15,
+            "conflict": 0.1
+          },
+          "selected_sources": [
+            {
+              "source_id": "src_demo_doc",
+              "name": "Company Policy & Legal Documentation",
+              "source_type": "PDF Document",
+              "domain": "legal_policy",
+              "tool_type": "doc_tool",
+              "endpoint_or_schema": "C:\\Users\\ARUL RAJ HARESH\\Desktop\\amof\\datasets\\company_policy.txt",
+              "score": 0.647,
+              "relevance": 0.5,
+              "reliability": 0.9992,
+              "freshness": 0.9959,
+              "cost": 0.02,
+              "historical_success": 0.9987,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.8059
+            },
+            {
+              "source_id": "src_iam_active_directory",
+              "name": "Okta & Active Directory Enterprise IAM User Store",
+              "source_type": "SQL Database",
+              "domain": "cybersecurity",
+              "tool_type": "sql_tool",
+              "endpoint_or_schema": "sqlite:///./data/identity_access.db",
+              "score": 0.6454,
+              "relevance": 0.5,
+              "reliability": 1.0,
+              "freshness": 0.9959,
+              "cost": 0.04,
+              "historical_success": 1.0,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.805
+            },
+            {
+              "source_id": "src_sales_commission_db",
+              "name": "Sales Rep Quota & Commission Tracking DB",
+              "source_type": "SQL Database",
+              "domain": "sales_performance",
+              "tool_type": "sql_tool",
+              "endpoint_or_schema": "sqlite:///./data/commissions.db",
+              "score": 0.6448,
+              "relevance": 0.5,
+              "reliability": 0.992,
+              "freshness": 0.9959,
+              "cost": 0.03,
+              "historical_success": 1.0,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.8046
+            }
+          ],
+          "allowed_tools": [
+            "doc_tool",
+            "sql_tool"
+          ],
+          "mode": "weighted",
+          "source_reduction_ratio": 0.945455
+        },
+        "query": "What does the company return policy say about unopened merchandise?",
+        "measured_latency_ms": 511.61,
+        "prompt_tokens": 280,
+        "output_tokens": 126,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.1443298969072165,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 5: AMORA Dynamic-Weight Routing (Full)",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_ecommerce_checkout",
+          "src_firmware_release_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'Which product has generated the highest sales revenue?'**:\n\n[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\n[Source: Device Firmware OTA Release & Checksum API]\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.\n\n> [!WARNING]\n> **Conflict Resolution (Dempster-Shafer Engine):**\n> A numerical discrepancy was detected: The secondary REST API returned a payload indicating `stock: 142` and `unit_price: $49.99` for a generic label 'Product X'. AMORA's Dempster-Shafer belief aggregation prioritized the authoritative **Enterprise Sales & Inventory Database** ($L_i=0.996$) over the external API.",
+          "prompt_tokens": 332,
+          "output_tokens": 127,
+          "total_tokens": 459,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:15.934608+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.7511,
+              "fused_score": 0.8347
+            },
+            {
+              "source_id": "src_firmware_release_api",
+              "source_name": "Device Firmware OTA Release & Checksum API",
+              "tool": "api_tool",
+              "content": "REST API [Device Firmware OTA Release & Checksum API] payload retrieved for query 'Which product has generated highest sales revenue? order records database query': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:15.998320+00:00'}",
+              "timestamp": "2026-10-27T08:30:15.998320+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.7508,
+              "fused_score": 0.8025
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Device Firmware OTA Release & Checksum API]\nREST API [Device Firmware OTA Release & Checksum API] payload retrieved for query 'Which product has generated highest sales revenue? order records database query': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:15.998320+00:00'}"
+        },
+        "routing_summary": {
+          "query": "Which product has generated the highest sales revenue?",
+          "retrieval_query": "Which product has generated highest sales revenue? order records database query",
+          "total_catalog_sources": 55,
+          "candidate_count": 55,
+          "weights": {
+            "relevance": 0.4206,
+            "reliability": 0.3551,
+            "freshness": 0.1402,
+            "cost": 0.0187,
+            "historical_success": 0.0467,
+            "conflict": 0.0187
+          },
+          "selected_sources": [
+            {
+              "source_id": "src_demo_doc",
+              "name": "Company Policy & Legal Documentation",
+              "source_type": "PDF Document",
+              "domain": "legal_policy",
+              "tool_type": "doc_tool",
+              "endpoint_or_schema": "C:\\Users\\ARUL RAJ HARESH\\Desktop\\amof\\datasets\\company_policy.txt",
+              "score": 0.7511,
+              "relevance": 0.5,
+              "reliability": 0.9992,
+              "freshness": 0.9959,
+              "cost": 0.02,
+              "historical_success": 0.9988,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.8631
+            },
+            {
+              "source_id": "src_ecommerce_checkout",
+              "name": "E-Commerce Online Orders & Checkout Store",
+              "source_type": "SQL Database",
+              "domain": "ecommerce",
+              "tool_type": "sql_tool",
+              "endpoint_or_schema": "sqlite:///./data/ecommerce_orders.db",
+              "score": 0.7508,
+              "relevance": 0.5,
+              "reliability": 1.0,
+              "freshness": 0.9959,
+              "cost": 0.05,
+              "historical_success": 1.0,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.863
+            },
+            {
+              "source_id": "src_firmware_release_api",
+              "name": "Device Firmware OTA Release & Checksum API",
+              "source_type": "REST API",
+              "domain": "firmware_iot",
+              "tool_type": "api_tool",
+              "endpoint_or_schema": "https://ota.devices.internal/v2/firmware",
+              "score": 0.7508,
+              "relevance": 0.5,
+              "reliability": 1.0,
+              "freshness": 0.9959,
+              "cost": 0.05,
+              "historical_success": 1.0,
+              "conflict": 0.0,
+              "pareto_rank": 1,
+              "dst_belief": 1.0,
+              "dst_combined_score": 0.863
+            }
+          ],
+          "allowed_tools": [
+            "api_tool",
+            "doc_tool",
+            "sql_tool"
+          ],
+          "mode": "weighted",
+          "source_reduction_ratio": 0.945455
+        },
+        "query": "Which product has generated the highest sales revenue?",
+        "measured_latency_ms": 583.98,
+        "prompt_tokens": 332,
+        "output_tokens": 127,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.020833333333333332,
+        "em": 0.0
+      }
+    ],
+    "Baseline 6: Random Source Selection": [
+      {
+        "baseline": "Baseline 6: Random Source Selection",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_factory_qa_telemetry_db",
+          "src_msds_safety_docs",
+          "src_siem_threat_vector"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'What is the current inventory stock quantity of Quantum X Laptop?'**:\n\n[Source: Splunk SIEM Firewall & Threat Intelligence Vector Index]\n[Source: Material Safety Data Sheets (MSDS) & Battery Handling Manual]\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 339,
+          "output_tokens": 70,
+          "total_tokens": 409,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: Google Gemini API timed out after 5s for model gemini-flash-latest",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_siem_threat_vector",
+              "source_name": "Splunk SIEM Firewall & Threat Intelligence Vector Index",
+              "tool": "vector_tool",
+              "content": "FAISS Vector Retrieval [Splunk SIEM Firewall & Threat Intelligence Vector Index]: Retracted dense passages with top semantic alignment for 'What is the current inventory stock quantity of Quantum X Laptop?'. Context: High-confidence semantic chunk with embedding similarity score 0.89.",
+              "timestamp": "2026-10-27T08:30:05.535525+00:00",
+              "retrieval_score": 0.89,
+              "source_score": 0.5,
+              "fused_score": 0.656
+            },
+            {
+              "source_id": "src_msds_safety_docs",
+              "source_name": "Material Safety Data Sheets (MSDS) & Battery Handling Manual",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [Material Safety Data Sheets (MSDS) & Battery Handling Manual]: Extracted relevant policy/spec sections for query 'What is the current inventory stock quantity of Quantum X Laptop?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:30:05.521984+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.5,
+              "fused_score": 0.648
+            }
+          ],
+          "conflict_detected": true,
+          "conflict_score": 0.3,
+          "flagged_conflicts": [
+            {
+              "type": "numeric_disagreement",
+              "sources": [
+                "Splunk SIEM Firewall & Threat Intelligence Vector Index",
+                "Material Safety Data Sheets (MSDS) & Battery Handling Manual"
+              ],
+              "details": "Disagreement in numeric values between Splunk SIEM Firewall & Threat Intelligence Vector Index (['0.89']) and Material Safety Data Sheets (MSDS) & Battery Handling Manual (['30'])."
+            }
+          ],
+          "formatted_prompt_context": "[Source: Splunk SIEM Firewall & Threat Intelligence Vector Index]\nFAISS Vector Retrieval [Splunk SIEM Firewall & Threat Intelligence Vector Index]: Retracted dense passages with top semantic alignment for 'What is the current inventory stock quantity of Quantum X Laptop?'. Context: High-confidence semantic chunk with embedding similarity score 0.89.\n\n[Source: Material Safety Data Sheets (MSDS) & Battery Handling Manual]\nDocument Retrieval [Material Safety Data Sheets (MSDS) & Battery Handling Manual]: Extracted relevant policy/spec sections for query 'What is the current inventory stock quantity of Quantum X Laptop?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt."
+        },
+        "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+        "measured_latency_ms": 5176.19,
+        "prompt_tokens": 339,
+        "output_tokens": 70,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.0,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 6: Random Source Selection",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_demo_doc",
+          "src_expense_concur_db",
+          "src_forex_treasury_api"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the verified information for **'What does the company return policy say about unopened merchandise?'**:\n\n- **Return Window:** Unopened merchandise may be returned within **30 calendar days** from delivery for a 100% full refund [Source: Company Policy & Legal Documentation].\n- **Item Condition:** Must be in original packaging with serial tags intact [Source: Company Policy & Legal Documentation].\n- **Warranty Protection:** Hardware includes a **12-month manufacturer limited warranty** [Source: Company Policy & Legal Documentation].\n- **Refund Timeline:** Processed within **5-7 business days** upon return receipt [Source: Company Policy & Legal Documentation].\n\n> [!WARNING]\n> **Conflict Resolution (Dempster-Shafer Engine):**\n> A numerical discrepancy was detected: The secondary REST API returned a payload indicating `stock: 142` and `unit_price: $49.99` for a generic label 'Product X'. AMORA's Dempster-Shafer belief aggregation prioritized the authoritative **Enterprise Sales & Inventory Database** ($L_i=0.996$) over the external API.",
+          "prompt_tokens": 334,
+          "output_tokens": 189,
+          "total_tokens": 523,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_demo_doc",
+              "source_name": "Company Policy & Legal Documentation",
+              "tool": "doc_tool",
+              "content": "Document [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n    \n    1. Return Period:\n       Customers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n    \n    2. Condition & Packaging:\n       Items must be in original condition with intact serial tags and all original packaging accessories.\n    \n    3. Electronics Warranty:\n       All Quantum X Laptops and Aura Pro Headphones include a 12-month manufacturer limited warranty covering hardware defects.\n    \n    4. Refund Processing Time:\n       Approved refunds are processed to the original payment method within 5-7 business days upon receipt at Warehouse A.",
+              "timestamp": "2026-10-27T08:30:13.262634+00:00",
+              "retrieval_score": 0.96,
+              "source_score": 0.5,
+              "fused_score": 0.684
+            },
+            {
+              "source_id": "src_forex_treasury_api",
+              "source_name": "Treasury FX Rates & Currency Hedging Feed",
+              "tool": "api_tool",
+              "content": "REST API [Treasury FX Rates & Currency Hedging Feed] payload retrieved for query 'What does the company return policy say about unopened merchandise?': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:13.331755+00:00'}",
+              "timestamp": "2026-10-27T08:30:13.331755+00:00",
+              "retrieval_score": 0.88,
+              "source_score": 0.5,
+              "fused_score": 0.652
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: Company Policy & Legal Documentation]\nDocument [company_policy.txt] text:\nCOMPANY RETURN AND WARRANTY POLICY 2026\n1. Return Period:\nCustomers may return any unopened merchandise within 30 calendar days from the delivery date for a full refund.\n2. Condition & Packaging:\nItems must be in original condition with intact serial tags and all original packaging accessories.\n\n[Source: Treasury FX Rates & Currency Hedging Feed]\nREST API [Treasury FX Rates & Currency Hedging Feed] payload retrieved for query 'What does the company return policy say about unopened merchandise?': status='OK', payload={'entity': 'Product X', 'stock': 142, 'unit_price': '$49.99', 'updated_at': '2026-10-27T08:30:13.331755+00:00'}"
+        },
+        "query": "What does the company return policy say about unopened merchandise?",
+        "measured_latency_ms": 587.66,
+        "prompt_tokens": 334,
+        "output_tokens": 189,
+        "p5": 0.2,
+        "r5": 1.0,
+        "mrr": 1.0,
+        "ndcg5": 1.0,
+        "f1": 0.09859154929577464,
+        "em": 0.0
+      },
+      {
+        "baseline": "Baseline 6: Random Source Selection",
+        "retrieval_required": true,
+        "selected_sources": [
+          "src_customs_tariff_docs",
+          "src_warehouse_central",
+          "src_spec_quantum_laptop"
+        ],
+        "llm_result": {
+          "answer": "Based on multi-source authoritative retrieval, here is the factual synthesis for **'Which product has generated the highest sales revenue?'**:\n\n[Source: International Trade Customs & Harmonized Tariff Schedules]\n[Source: Quantum X Laptop Engineering Datasheets & Schematics]\n\n**Conclusion:** All retrieved facts were verified against active data sources with high confidence.",
+          "prompt_tokens": 321,
+          "output_tokens": 62,
+          "total_tokens": 383,
+          "metadata_ranking_tokens": 0,
+          "provider_used": "STUB - canned template (no LLM was called) - gemini provider error: 429 Client Error: Too Many Requests for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key",
+          "is_stub": true
+        },
+        "fused_evidence": {
+          "evidence_items": [
+            {
+              "source_id": "src_customs_tariff_docs",
+              "source_name": "International Trade Customs & Harmonized Tariff Schedules",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [International Trade Customs & Harmonized Tariff Schedules]: Extracted relevant policy/spec sections for query 'Which product has generated the highest sales revenue?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:30:16.518117+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.5,
+              "fused_score": 0.648
+            },
+            {
+              "source_id": "src_spec_quantum_laptop",
+              "source_name": "Quantum X Laptop Engineering Datasheets & Schematics",
+              "tool": "doc_tool",
+              "content": "Document Retrieval [Quantum X Laptop Engineering Datasheets & Schematics]: Extracted relevant policy/spec sections for query 'Which product has generated the highest sales revenue?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.",
+              "timestamp": "2026-10-27T08:30:16.555876+00:00",
+              "retrieval_score": 0.87,
+              "source_score": 0.5,
+              "fused_score": 0.648
+            }
+          ],
+          "conflict_detected": false,
+          "conflict_score": 0.0,
+          "flagged_conflicts": [],
+          "formatted_prompt_context": "[Source: International Trade Customs & Harmonized Tariff Schedules]\nDocument Retrieval [International Trade Customs & Harmonized Tariff Schedules]: Extracted relevant policy/spec sections for query 'Which product has generated the highest sales revenue?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt.\n\n[Source: Quantum X Laptop Engineering Datasheets & Schematics]\nDocument Retrieval [Quantum X Laptop Engineering Datasheets & Schematics]: Extracted relevant policy/spec sections for query 'Which product has generated the highest sales revenue?'. Statement: Standard company policy permits returns within 30 days with original invoice receipt."
+        },
+        "query": "Which product has generated the highest sales revenue?",
+        "measured_latency_ms": 438.85,
+        "prompt_tokens": 321,
+        "output_tokens": 62,
+        "p5": 0.0,
+        "r5": 0.0,
+        "mrr": 0.0,
+        "ndcg5": 0.0,
+        "f1": 0.12,
+        "em": 0.0
+      }
+    ]
+  }
+}

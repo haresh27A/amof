@@ -1,0 +1,178 @@
+\section{Algorithmic Framework and Pseudocode}
+\label{sec:algorithms}
+
+This section provides complete, formal algorithmic descriptions for all processing stages of the AMORA framework. The algorithms are formulated to be self-contained, reproducible, and mathematically rigorous.
+
+\subsection{End-to-End Execution Pipeline}
+Algorithm \ref{alg:end_to_end} specifies the master execution pipeline of AMORA, detailing how incoming natural language queries are conditionally routed through parametric fast-paths or multi-source tool coordination engines.
+
+\begin{algorithm}[h]
+\caption{End-to-End AMORA Master Execution Pipeline}
+\label{alg:end_to_end}
+\begin{algorithmic}[1]
+\REQUIRE User query $q \in \mathcal{Q}$, Enterprise catalog $\mathcal{C} = \{s_1, \dots, s_N\}$, Pre-trained local generator $\mathcal{G}_{\text{local}}$, Activation threshold $\theta = 0.25$, Candidate pool size $M = 55$, Top-$K$ tool budget $K = 3$.
+\ENSURE Grounded, hallucination-free enterprise response $y^*$.
+\STATE \COMMENT{\textbf{Stage 1: Adaptive Knowledge Gating}}
+\STATE $(g_{\text{trigger}}, K_{\text{score}}) \leftarrow \text{IE\_KRT\_Evaluate}(q, \theta)$
+\IF{$g_{\text{trigger}} = 0$}
+    \STATE \COMMENT{Parametric Fast-Path: 35.0\% traffic bypasses retrieval}
+    \STATE $y^* \leftarrow \mathcal{G}_{\text{local}}.\text{Generate}(\text{prompt} = q, \text{context} = \emptyset)$
+    \RETURN $y^*$
+\ENDIF
+\STATE \COMMENT{\textbf{Stage 2: Query Intent Formulation}}
+\STATE $q^+ \leftarrow \text{IE\_KQF\_Formulate}(q)$
+\STATE \COMMENT{\textbf{Stage 3: Scalable Two-Stage Candidate Pre-filtering}}
+\STATE $\mathcal{C}_{\text{cand}} \leftarrow \text{Funnel\_Prefilter}(q^+, \mathcal{C}, M)$ \COMMENT{Compresses $N \to M$ in sub-$4\,\text{ms}$}
+\STATE \COMMENT{\textbf{Stage 4 \& 5: Dynamic Weight Generation and Multi-Objective Ranking}}
+\STATE $\mathbf{W}^* \leftarrow \text{Generate\_Dynamic\_Weights}(q)$ \COMMENT{Guarantees $\mathbf{W}^* \in \Delta^5$}
+\STATE $\mathcal{S}^* \leftarrow \emptyset$
+\FORALL{$s_i \in \mathcal{C}_{\text{cand}}$}
+    \STATE $\boldsymbol{\phi}_i \leftarrow \text{Evaluate\_6D\_Profile}(s_i, q^+)$
+    \STATE $\text{Score}_i \leftarrow \langle \mathbf{W}^*, \, \boldsymbol{\phi}_i \rangle$
+    \STATE Insert $(s_i, \text{Score}_i)$ into min-heap $\mathcal{H}$
+\ENDFOR
+\STATE $\mathcal{S}^* \leftarrow \text{Extract\_Top\_K}(\mathcal{H}, K)$
+\STATE \COMMENT{\textbf{Stage 6: Multi-Tool Concurrent Execution}}
+\STATE $\mathcal{E}_{\text{raw}} \leftarrow \emptyset$
+\FORALL{$s_k \in \mathcal{S}^*$ \textbf{in parallel}}
+    \STATE $\mathcal{R}_k \leftarrow \text{Execute\_Tool\_Adapter}(s_k, q^+)$
+    \STATE $\mathcal{E}_{\text{raw}} \leftarrow \mathcal{E}_{\text{raw}} \cup \mathcal{R}_k$
+\ENDFOR
+\STATE \COMMENT{\textbf{Stage 7: Evidence Fusion and Conflict Mitigation}}
+\STATE $\mathcal{X}_{\text{compact}} \leftarrow \text{Fuse\_And\_Mitigate\_Conflicts}(\mathcal{E}_{\text{raw}})$ \COMMENT{Deduplication + $O(E^2)$ checks}
+\STATE \COMMENT{\textbf{Stage 8: Local Quantized Generation}}
+\STATE $y^* \leftarrow \mathcal{G}_{\text{local}}.\text{Generate}(\text{prompt} = q, \text{context} = \mathcal{X}_{\text{compact}})$
+\RETURN $y^*$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Knowledge Retrieval Trigger (IE-KRT)}
+Algorithm \ref{alg:krt} formalizes the uncertainty scoring and decision logic that governs when external retrieval is triggered versus bypassed.
+
+\begin{algorithm}[h]
+\caption{INKER Knowledge Retrieval Trigger (IE-KRT)}
+\label{alg:krt}
+\begin{algorithmic}[1]
+\REQUIRE Query string $q$, Threshold $\theta = 0.25$, Max length $L_{\text{max}} = 25$.
+\ENSURE Gating flag $g \in \{0, 1\}$, Activation score $K \in [-1, 1]$.
+\STATE Tokens $\mathcal{T} \leftarrow \text{Tokenize}(q)$
+\STATE Length score $L_{\text{score}} \leftarrow \min(|\mathcal{T}| / L_{\text{max}}, \, 1.0)$
+\STATE $\mathbb{I}_{\text{clause}} \leftarrow 1$ \textbf{if} $\exists w \in \{\text{and}, \text{or}, \text{versus}, \text{vs}, \text{compare}, \text{if}, \text{while}\} \subseteq q$ \textbf{else} $0$
+\STATE $\mathbb{I}_{\text{punct}} \leftarrow 1$ \textbf{if} $\exists c \in \{?, ,, ;, :\} \subseteq q$ \textbf{else} $0$
+\STATE $E \leftarrow \min(0.50 \cdot L_{\text{score}} + 0.30 \cdot \mathbb{I}_{\text{clause}} + 0.20 \cdot \mathbb{I}_{\text{punct}}, \, 1.0)$
+\STATE $F_{\text{need}} \leftarrow \min(\sum_{w \in \mathcal{K}_{\text{fact}}} 0.35 \cdot \mathbb{I}(w \in q), \, 1.0)$
+\STATE $T_{\text{need}} \leftarrow \min(0.50 \cdot |\mathcal{K}_{\text{temp}} \cap \mathcal{T}| + 0.30 \cdot \mathbb{I}(\text{ContainsDigits}(q)), \, 1.0)$
+\STATE $m_i \leftarrow \max(0.10, \, 1.0 - (0.50 \cdot F_{\text{need}} + 0.40 \cdot T_{\text{need}}))$
+\STATE $S_i \leftarrow \min(1.0, \, 0.30 + 0.40 \cdot F_{\text{need}} + 0.30 \cdot T_{\text{need}})$
+\STATE $K \leftarrow (E - m_i) \cdot S_i$
+\IF{$K < \theta$}
+    \RETURN $(0, \, K)$ \COMMENT{Bypass retrieval: parametric fast-path}
+\ELSE
+    \RETURN $(1, \, K)$ \COMMENT{Trigger external multi-source retrieval}
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Two-Stage Scalable Funnel Pre-filtering}
+Algorithm \ref{alg:funnel} outlines the candidate pruning process converting $N = 10,000$ catalog endpoints to $M = 55$ candidates via FAISS vector search.
+
+\begin{algorithm}[h]
+\caption{Two-Stage Scalable Vector Pre-filtering Funnel}
+\label{alg:funnel}
+\begin{algorithmic}[1]
+\REQUIRE Expanded query intent $q^+$, Catalog $\mathcal{C} = \{s_1, \dots, s_N\}$, Target candidate size $M = 55$.
+\ENSURE Pruned candidate set $\mathcal{C}_{\text{cand}}$ with $|\mathcal{C}_{\text{cand}}| = M$.
+\STATE \COMMENT{\textbf{Stage 3A: Inverted Bitmap Status Filtering}}
+\STATE $\mathcal{C}_{\text{active}} \leftarrow \emptyset$
+\FORALL{$s_i \in \mathcal{C}$}
+    \IF{$s_i.\text{status} = \text{ACTIVE} \land s_i.\text{rbac\_authorized} = \text{TRUE}$}
+        \STATE $\mathcal{C}_{\text{active}} \leftarrow \mathcal{C}_{\text{active}} \cup \{s_i\}$
+    \ENDIF
+\ENDFOR
+\STATE \COMMENT{\textbf{Stage 3B: Dense Vector Embedding Inner-Product Search}}
+\STATE $\mathbf{q}^+ \leftarrow \text{Normalize}_{L_2}(\text{Embedder}.\text{Encode}(q^+))$
+\STATE Candidate indices $\mathcal{I}_{\text{top}} \leftarrow \text{FAISS\_IndexFlatIP}.\text{Search}(\mathbf{q}^+, \, \mathcal{C}_{\text{active}}, \, \text{top\_k} = M)$
+\STATE $\mathcal{C}_{\text{cand}} \leftarrow \{s_j \in \mathcal{C}_{\text{active}} \mid j \in \mathcal{I}_{\text{top}}\}$
+\STATE Compute Source Reduction Ratio: $\text{SRR} \leftarrow 1.0 - (|\mathcal{C}_{\text{cand}}| / |\mathcal{C}|)$
+\RETURN $\mathcal{C}_{\text{cand}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Dynamic Query-Adaptive Weight Normalization}
+Algorithm \ref{alg:dynamic_weights} describes how AMORA dynamically perturbs objective weights to reflect detected temporal, factual, or cost signals while strictly preserving the 5-simplex invariant.
+
+\begin{algorithm}[h]
+\caption{Dynamic Query-Aware Weight Generation and Simplex Projection}
+\label{alg:dynamic_weights}
+\begin{algorithmic}[1]
+\REQUIRE User query $q$, Default base weights $\mathbf{W}^{(0)} = [0.35, 0.20, 0.15, 0.10, 0.10, 0.10]^T$.
+\ENSURE Normalized weight vector $\mathbf{W}^* \in \Delta^5$.
+\STATE $T_{\text{score}} \leftarrow \text{QueryAnalyzer}.\text{DetectTemporalNeed}(q)$
+\STATE $C_{\text{score}} \leftarrow \text{QueryAnalyzer}.\text{DetectCostSensitivity}(q)$
+\STATE Initialize $\mathbf{W}' \leftarrow \text{Copy}(\mathbf{W}^{(0)})$
+\IF{$T_{\text{score}} > 0.50$}
+    \STATE Shift $\Delta_f \leftarrow 0.25 \cdot T_{\text{score}}$
+    \STATE $W_f' \leftarrow W_f^{(0)} + \Delta_f$
+    \STATE $W_r' \leftarrow \max(0.05, \, W_r^{(0)} - \Delta_f / 2)$
+    \STATE $W_h' \leftarrow \max(0.05, \, W_h^{(0)} - \Delta_f / 2)$
+\ENDIF
+\IF{$C_{\text{score}} > 0.60$}
+    \STATE Shift $\Delta_c \leftarrow 0.15 \cdot C_{\text{score}}$
+    \STATE $W_c' \leftarrow W_c^{(0)} + \Delta_c$
+    \STATE $W_l' \leftarrow \max(0.05, \, W_l^{(0)} - \Delta_c)$
+\ENDIF
+\STATE \COMMENT{Enforce Projective Simplex Invariant}
+\STATE $\Sigma_W \leftarrow \sum_{j \in \{r, l, f, c, h, k\}} W_j'$
+\FORALL{$j \in \{r, l, f, c, h, k\}$}
+    \STATE $W_j^* \leftarrow W_j' / \Sigma_W$
+\ENDFOR
+\STATE \textbf{assert} $|\sum_j W_j^* - 1.0| < 10^{-6}$
+\RETURN $\mathbf{W}^*$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Evidence Fusion and Conflict Mitigation}
+Algorithm \ref{alg:evidence_fusion} details how retrieved multi-source payloads are deduplicated and scanned for numerical discrepancies before LLM synthesis.
+
+\begin{algorithm}[h]
+\caption{Multi-Source Evidence Fusion and Numerical Conflict Mitigation}
+\label{alg:evidence_fusion}
+\begin{algorithmic}[1]
+\REQUIRE Raw evidence chunks $\mathcal{E}_{\text{raw}} = \{e_1, \dots, e_p\}$, Window size $w = 16$, Stride $s = 8$.
+\ENSURE Compact, conflict-annotated context prompt $\mathcal{X}$.
+\STATE \COMMENT{\textbf{Phase 1: Sliding-Window Hash Deduplication}}
+\STATE $\mathcal{E}_{\text{dedup}} \leftarrow \emptyset$, SeenHashes $\leftarrow \emptyset$
+\FORALL{$e_i \in \mathcal{E}_{\text{raw}}$}
+    \STATE Windows $\leftarrow \text{ExtractSlidingWindows}(e_i.\text{text}, w, s)$
+    \STATE IsDuplicate $\leftarrow \text{FALSE}$
+    \FORALL{$\text{win} \in \text{Windows}$}
+        \STATE $h \leftarrow \text{MurmurHash64}(\text{win})$
+        \IF{$h \in \text{SeenHashes}$}
+            \STATE IsDuplicate $\leftarrow \text{TRUE}$; \textbf{break}
+        \ENDIF
+        \STATE $\text{SeenHashes} \leftarrow \text{SeenHashes} \cup \{h\}$
+    \ENDFOR
+    \IF{$\textbf{not } \text{IsDuplicate}$}
+        \STATE $\mathcal{E}_{\text{dedup}} \leftarrow \mathcal{E}_{\text{dedup}} \cup \{e_i\}$
+    \ENDIF
+\ENDFOR
+\STATE \COMMENT{\textbf{Phase 2: Numerical Discrepancy Graph Extraction}}
+\STATE Discrepancies $\leftarrow \emptyset$
+\STATE EntitiesMap $\leftarrow \text{ExtractNumericalEntities}(\mathcal{E}_{\text{dedup}})$
+\FORALL{distinct pairs $(e_a, e_b) \in \mathcal{E}_{\text{dedup}} \times \mathcal{E}_{\text{dedup}}$}
+    \FORALL{entity key $k \in \text{Keys}(e_a) \cap \text{Keys}(e_b)$}
+        \IF{$|v(e_a, k) - v(e_b, k)| > \epsilon_{\text{tol}}$}
+            \STATE Warning $\leftarrow \text{FormatWarning}(k, e_a.\text{source}, v(e_a, k), e_b.\text{source}, v(e_b, k))$
+            \STATE Discrepancies $\leftarrow \text{Discrepancies} \cup \{\text{Warning}\}$
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\STATE \COMMENT{\textbf{Phase 3: Fused Scoring and Assembly}}
+\FORALL{$e_i \in \mathcal{E}_{\text{dedup}}$}
+    \STATE $S_{\text{fused}}(e_i) \leftarrow 0.40 \cdot e_i.\text{retrieval\_score} + 0.60 \cdot e_i.\text{source\_profile\_score}$
+\ENDFOR
+\STATE Sort $\mathcal{E}_{\text{dedup}}$ in descending order of $S_{\text{fused}}$
+\STATE $\mathcal{X} \leftarrow \text{AssemblePromptContext}(\text{Discrepancies}, \mathcal{E}_{\text{dedup}})$
+\RETURN $\mathcal{X}$
+\end{algorithmic}
+\end{algorithm}

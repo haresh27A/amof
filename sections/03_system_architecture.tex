@@ -1,0 +1,275 @@
+\section{System Architecture and Methodology}
+\label{sec:architecture}
+
+This section details the formal mathematical model, system components, and operational mechanics of the AMORA framework. The overall architecture is organized into eight interconnected stages, as visualized in Figure \ref{fig:detailed_architecture}.
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}{0.98\textwidth}
+\begin{verbatim}
+====================================================================================================
+                                      AMORA SYSTEM ARCHITECTURE
+====================================================================================================
+                                            [User Query q]
+                                                  │
+                                                  ▼
+                                    ┌───────────────────────────┐
+                                    │    STAGE 1: INKER IE-KRT   │
+                                    │  Adaptive Knowledge Gate  │
+                                    │  K(t_i) = (E - m_i) · S_i │
+                                    └─────────────┬─────────────┘
+                                                  │
+                         ┌────────────────────────┴────────────────────────┐
+                         │                                                 │
+                  [K(t_i) < θ = 0.25]                               [K(t_i) ≥ θ = 0.25]
+                         │                                                 │
+                         ▼                                                 ▼
+               ┌───────────────────┐                         ┌───────────────────────────┐
+               │  PARAMETRIC PATH  │                         │    STAGE 2: INKER IE-KQF  │
+               │ (35% Gated Bypass)│                         │  Query Intent Formulator  │
+               │  0ms Retrieval IO │                         │     q+ = concat(P, I)     │
+               └─────────┬─────────┘                         └─────────────┬─────────────┘
+                         │                                                 │
+                         │                                                 ▼
+                         │                                   ┌───────────────────────────┐
+                         │                                   │ STAGE 3: TWO-STAGE FUNNEL │
+                         │                                   │  FAISS Dense Index Search │
+                         │                                   │  N=10,000  ──►  M=55 Cand.│
+                         │                                   │       (SRR = 99.45%)      │
+                         │                                   └─────────────┬─────────────┘
+                         │                                                 │
+                         │                                                 ▼
+                         │                                   ┌───────────────────────────┐
+                         │                                   │ STAGE 4 & 5: DYNAMIC MOO  │
+                         │                                   │ 6D Multi-Objective Profiling│
+                         │                                   │ ∑ W_j = 1.0 Simplex Norm  │
+                         │                                   │ Pareto Ranking -> Top-K   │
+                         │                                   └─────────────┬─────────────┘
+                         │                                                 │
+                         │                                                 ▼
+                         │                                   ┌───────────────────────────┐
+                         │                                   │  STAGE 6: TOOL EXECUTION  │
+                         │                                   │  SQL / REST / PDF / Vector│
+                         │                                   └─────────────┬─────────────┘
+                         │                                                 │
+                         │                                                 ▼
+                         │                                   ┌───────────────────────────┐
+                         │                                   │  STAGE 7: EVIDENCE FUSION │
+                         │                                   │  Hash-Window Deduplication│
+                         │                                   │  O(E²) Conflict Detection │
+                         │                                   └─────────────┬─────────────┘
+                         │                                                 │
+                         └────────────────────────┬────────────────────────┘
+                                                  │
+                                                  ▼
+                                    ┌───────────────────────────┐
+                                    │   STAGE 8: LOCAL LLM      │
+                                    │   Qwen 2.5 7B (Q4_K_M)    │
+                                    │  Zero External Data Egress│
+                                    └─────────────┬─────────────┘
+                                                  │
+                                                  ▼
+                                      [Grounded Final Answer]
+====================================================================================================
+\end{verbatim}
+\end{minipage}
+\caption{End-to-end architectural workflow of the AMORA framework, depicting the adaptive gating bypass, hierarchical pre-filtering funnel, dynamic multi-objective ranking, multi-source evidence fusion, and local quantized LLM synthesis.}
+\label{fig:detailed_architecture}
+\end{figure*}
+
+\subsection{Formal Problem Formulation and System Model}
+Let $\mathcal{C} = \{s_1, s_2, \dots, s_N\}$ denote an enterprise endpoint catalog containing $N$ heterogeneous knowledge sources. Each candidate endpoint $s_i \in \mathcal{C}$ is characterized by a tuple:
+\begin{equation}
+    s_i = \left( \mathbf{e}_i, \, \tau_i, \, \mathcal{M}_i, \, \boldsymbol{\phi}_i \right)
+\end{equation}
+where:
+\begin{itemize}
+    \item $\mathbf{e}_i \in \mathbb{R}^d$ is a normalized dense semantic schema embedding vector ($d = 384$).
+    \item $\tau_i \in \{\text{SQL}, \, \text{REST}, \, \text{DOC}, \, \text{VEC}\}$ denotes the operational modality of the source.
+    \item $\mathcal{M}_i$ is the operational metadata, including database connection parameters, table schemas, REST OpenAPI specifications, or document collection URIs.
+    \item $\boldsymbol{\phi}_i = [R_i, L_i, F_i, C_i, H_i, K_i]^T \in [0, 1]^6$ is the instantaneous 6-dimensional multi-objective performance profile vector.
+\end{itemize}
+
+Given an incoming user query $q \in \mathcal{Q}$, the objective of AMORA is twofold:
+\begin{enumerate}
+    \item \textbf{Optimal Decision Gating:} Learn an indicator mapping $g(q) \in \{0, 1\}$ such that $g(q) = 0$ if the parametric memory of the generator is sufficient to accurately resolve $q$ with probability $1 - \epsilon$, thereby setting retrieval cost and latency to identically zero.
+    \item \textbf{Constrained Multi-Objective Ranking:} If $g(q) = 1$, dynamically select a subset of endpoints $\mathcal{S}^* \subset \mathcal{C}$ with $|\mathcal{S}^*| \le K$ ($K \ll N$) that maximizes semantic relevance, reliability, freshness, and historical success while strictly minimizing computational cost, execution latency, and factual contradiction risk, subject to real-time latency bounds $T_{\text{route}} < 5\,\text{ms}$.
+\end{enumerate}
+
+\subsection{Stage 1: INKER Knowledge Retrieval Trigger (IE-KRT)}
+To eliminate unconditional retrieval overhead, AMORA deploys the INKER Knowledge Retrieval Trigger (IE-KRT). The gating decision evaluates three orthogonal query signals:
+
+\subsubsection{Query Structural/Syntactic Complexity ($E \in [0, 1]$)}
+Queries requiring multi-hop synthesis, conditional reasoning, or multi-attribute comparison possess distinct lexical and syntactic characteristics. We formalize $E$ as:
+\begin{equation}
+    E(q) = \min\left( 0.5 \cdot \frac{|q|_{\text{words}}}{L_{\text{max}}} + 0.3 \cdot \mathbb{I}_{\text{clause}}(q) + 0.2 \cdot \mathbb{I}_{\text{punct}}(q), \, 1.0 \right)
+    \label{eq:complexity_e}
+\end{equation}
+where $|q|_{\text{words}}$ is the token word count, $L_{\text{max}} = 25$ is the saturation length threshold, $\mathbb{I}_{\text{clause}}(q) \in \{0, 1\}$ indicates the presence of logical connectors or comparative operators (e.g., \texttt{and}, \texttt{or}, \texttt{versus}, \texttt{compare}, \texttt{while}, \texttt{if}), and $\mathbb{I}_{\text{punct}}(q) \in \{0, 1\}$ captures clause-separating punctuation (commas, semicolons, hyphens).
+
+\subsubsection{Parametric Confidence Estimation ($m_i \in [0, 1]$)}
+Parametric confidence reflects the prior probability that a pre-trained LLM can resolve the query without auxiliary retrieval. While open-domain queries (e.g., ``What is the capital of France?'') enjoy high parametric certainty, enterprise operational queries exhibit low parametric confidence. We model $m_i$ inversely with respect to factual lookup need $F_{\text{need}}$ and temporal urgency $T_{\text{need}}$:
+\begin{equation}
+    m_i(q) = \max\left( 0.1, \, 1.0 - \left( 0.5 \cdot F_{\text{need}}(q) + 0.4 \cdot T_{\text{need}}(q) \right) \right)
+    \label{eq:confidence_m}
+\end{equation}
+
+\subsubsection{External Factual and Temporal Sensitivity ($S_i \in [0, 1]$)}
+The urgency factor $S_i$ scales the requirement for external ground truth. It is formulated as:
+\begin{equation}
+    S_i(q) = \min\left( 1.0, \, 0.3 + 0.4 \cdot F_{\text{need}}(q) + 0.3 \cdot T_{\text{need}}(q) \right)
+    \label{eq:urgency_s}
+\end{equation}
+The factual need $F_{\text{need}}(q)$ is computed by matching domain keywords $\mathcal{K}_{\text{fact}} = \{\text{inventory}, \text{price}, \text{return policy}, \text{stock}, \text{sales}, \text{revenue}, \text{manual}, \text{specification}\}$ against $q$:
+\begin{equation}
+    F_{\text{need}}(q) = \min\left( \sum_{w \in \mathcal{K}_{\text{fact}}} 0.35 \cdot \mathbb{I}(w \in q), \, 1.0 \right)
+\end{equation}
+The temporal need $T_{\text{need}}(q)$ evaluates the presence of real-time or dynamic anchors $\mathcal{K}_{\text{temp}} = \{\text{latest}, \text{recent}, \text{current}, \text{today}, \text{now}, \text{updated}, \text{real-time}, \text{2025}, \text{2026}\}$ and explicit digit patterns:
+\begin{equation}
+    T_{\text{need}}(q) = \min\left( 0.5 \cdot |\mathcal{K}_{\text{temp}} \cap q_{\text{tokens}}| + 0.3 \cdot \mathbb{I}(\exists d \in q : d \in [0, 9]), \, 1.0 \right)
+\end{equation}
+
+\subsubsection{The Knowledge Activation Function and Decision Boundary}
+Combining Equations (\ref{eq:complexity_e}), (\ref{eq:confidence_m}), and (\ref{eq:urgency_s}), the IE-KRT activation score is defined as:
+\begin{equation}
+    K(t_i) = \left( E(q) - m_i(q) \right) \cdot S_i(q)
+    \label{eq:k_activation}
+\end{equation}
+The gating decision rule is strictly defined by:
+\begin{equation}
+    g(q) = \begin{cases} 
+      0 \implies \text{Parametric Fast-Path (Bypass Retrieval)}, & K(t_i) < \theta \\
+      1 \implies \text{Trigger Multi-Source Routing Engine}, & K(t_i) \ge \theta
+   \end{cases}
+   \label{eq:gating_rule}
+\end{equation}
+where $\theta = 0.25$ represents the calibrated enterprise sufficiency threshold. When $g(q) = 0$, all external database I/O, network roundtrips, and tool calls are bypassed, routing directly to local generation with $0\,\text{ms}$ retrieval latency.
+
+\subsection{Stage 2: INKER Query Intent Formulator (IE-KQF)}
+When $g(q) = 1$, the raw natural language query $q$ often lacks explicit schema anchors necessary for precise multi-source retrieval. The IE-KQF module expands $q$ into a structured retrieval intent $q^+$:
+\begin{equation}
+    q^+ = \text{concat}\left( \mathcal{P}(q), \, \mathcal{I}(q) \right)
+\end{equation}
+where $\mathcal{P}(q)$ represents extracted entity primitives (e.g., SKU codes, employee IDs, department names identified via regular expression and capitalization anchors) and $\mathcal{I}(q)$ represents inferred operational intent tokens (e.g., \texttt{SQL:SELECT}, \texttt{DOC:POLICY}, \texttt{API:STATUS}). This projection aligns the user query with the heterogeneous schema space.
+
+\subsection{Stage 3: Scalable Two-Stage Candidate Pre-filtering Funnel}
+In an enterprise catalog containing $N \ge 10,000$ endpoints, profiling all $N$ items sequentially induces prohibitive latency ($>350\,\text{ms}$). AMORA establishes a two-stage pre-filtering funnel:
+
+\subsubsection{Stage 3A: Inverted Operational Index Filter (Hard Pruning)}
+A fast bitwise check eliminates endpoints currently marked offline, deprecated, or restricted by role-based access control (RBAC):
+\begin{equation}
+    \mathcal{C}_{\text{active}} = \{s_i \in \mathcal{C} \mid \text{Active}(s_i) = 1 \land \text{RBAC}(u, s_i) = 1\}
+\end{equation}
+
+\subsubsection{Stage 3B: Dense Vector Embedding Funnel}
+Using FAISS with an inner-product index ($\text{IndexFlatIP}$) over $L_2$-normalized dense embeddings, the expanded query embedding $\mathbf{q}^+ = \text{Embed}(q^+) \in \mathbb{R}^d$ is compared against all pre-computed schema embeddings $\mathbf{e}_i$:
+\begin{equation}
+    \text{Sim}(\mathbf{q}^+, \mathbf{e}_i) = \langle \mathbf{q}^+, \, \mathbf{e}_i \rangle = \sum_{k=1}^d q^+_k \cdot e_{i,k}
+\end{equation}
+The funnel retrieves the top-$M$ candidate endpoints exhibiting maximal semantic affinity:
+\begin{equation}
+    \mathcal{C}_{\text{cand}} = \operatorname{arg\,top-}M_{s_i \in \mathcal{C}_{\text{active}}} \text{Sim}(\mathbf{q}^+, \mathbf{e}_i)
+\end{equation}
+where $M \ll N$ (empirically $M = 55$ for $N = 10,000$). The **Source Reduction Ratio (SRR)** is defined as:
+\begin{equation}
+    \text{SRR} = 1 - \frac{M}{N}
+    \label{eq:srr_def}
+\end{equation}
+For $N = 10,000$ and $M = 55$, $\text{SRR} = 99.45\%$. This bounds the downstream profiling complexity to the small candidate set $M$.
+
+\subsection{Stage 4: Dynamic 6-Dimensional Source Profiling}
+For each candidate endpoint $i \in \{1, \dots, M\}$, AMORA evaluates six normalized operational metrics $\in [0, 1]$:
+
+\begin{enumerate}
+    \item \textbf{Semantic Relevance ($R_i \in [0, 1]$):} The cosine similarity between the expanded query vector and endpoint schema vector:
+    \begin{equation}
+        R_i = \max\left( 0.0, \, \frac{\mathbf{q}^+ \cdot \mathbf{e}_i}{\|\mathbf{q}^+\|_2 \|\mathbf{e}_i\|_2} \right)
+    \end{equation}
+    \item \textbf{System Reliability ($L_i \in [0, 1]$):} A convex combination of historical execution success rate and system uptime availability:
+    \begin{equation}
+        L_i = \alpha \cdot \text{SuccessRate}_i + \beta \cdot \text{Availability}_i
+        \label{eq:reliability_def}
+    \end{equation}
+    subject to $\alpha \ge 0, \beta \ge 0, \alpha + \beta = 1.0$ (calibrated to $\alpha = 0.6, \beta = 0.4$).
+    \item \textbf{Information Freshness ($F_i \in [0, 1]$):} An exponential temporal decay function over elapsed time $\Delta t_i$ (in hours) since the endpoint data store was last synchronized:
+    \begin{equation}
+        F_i = \exp\left( -\lambda \cdot \Delta t_i \right)
+        \label{eq:freshness_def}
+    \end{equation}
+    where $\lambda = 0.005$ establishes a smooth decay envelope preserving $>88\%$ freshness over 24 hours.
+    \item \textbf{Execution Cost Penalty ($C_i \in [0, 1]$):} Normalized monetary compute cost and expected roundtrip latency penalty:
+    \begin{equation}
+        C_i = \frac{1}{2} \left( \frac{\text{Cost}_{\text{USD}, i}}{\text{Cost}_{\text{max}}} + \frac{\text{Latency}_{\text{est}, i}}{\text{Latency}_{\text{max}}} \right)
+    \end{equation}
+    \item \textbf{Bayesian Historical Success ($H_i \in [0, 1]$):} A smoothed satisfaction metric incorporating prior expectations to prevent sample-size distortion on rarely invoked tools:
+    \begin{equation}
+        H_i = \frac{k_i + \alpha_0}{n_i + \alpha_0 + \beta_0}
+        \label{eq:bayesian_success}
+    \end{equation}
+    where $k_i$ is successful query invocations, $n_i$ is total invocations, and $\alpha_0 = 1, \beta_0 = 1$ represent Laplace uniform priors.
+    \item \textbf{Contradiction / Conflict Penalty ($K_i \in [0, 1]$):} A longitudinal record of cross-source factual contradictions associated with endpoint $i$:
+    \begin{equation}
+        K_i = \min\left( 1.0, \, \text{ConflictOccurrences}_i \times 0.20 \right)
+    \end{equation}
+\end{enumerate}
+
+\subsection{Stage 5: Query-Adaptive Dynamic Weight Generation and Simplex Invariant}
+Rather than utilizing static, arbitrary weights, AMORA dynamically computes weight vector $\mathbf{W} = [W_r, W_l, W_f, W_c, W_h, W_k]^T$ conditioned on detected query characteristics. 
+
+Let the base neutral weight vector be $\mathbf{W}^{(0)} = [0.35, 0.20, 0.15, 0.10, 0.10, 0.10]^T$. Depending on the detected temporal score $T_{\text{need}}(q)$ and cost sensitivity $C_{\text{flag}}(q)$:
+\begin{equation}
+    \begin{aligned}
+        \text{If } T_{\text{need}}(q) > 0.5: \quad & \Delta_f = 0.25 \cdot T_{\text{need}}(q) \\
+        & W_f \leftarrow W_f^{(0)} + \Delta_f \\
+        & W_r \leftarrow W_r^{(0)} - \frac{\Delta_f}{2}, \quad W_h \leftarrow W_h^{(0)} - \frac{\Delta_f}{2}
+    \end{aligned}
+\end{equation}
+To guarantee mathematical validity, the updated weight vector is projected onto the standard 5-simplex $\Delta^5$:
+\begin{equation}
+    W_j^* = \frac{W_j}{\sum_{k \in \{r, l, f, c, h, k\}} W_k}, \quad \forall j
+    \label{eq:simplex_norm}
+\end{equation}
+satisfying the strict invariant:
+\begin{equation}
+    \sum_{j \in \{r, l, f, c, h, k\}} W_j^* = 1.000000, \quad W_j^* > 0
+\end{equation}
+
+The composite scalar routing score for each candidate endpoint $i \in \mathcal{C}_{\text{cand}}$ is then:
+\begin{equation}
+    \text{Score}_i = W_r^* R_i + W_l^* L_i + W_f^* F_i + W_h^* H_i - W_c^* C_i - W_k^* K_i
+    \label{eq:composite_score}
+\end{equation}
+The top-$K$ endpoints exhibiting maximal $\text{Score}_i$ are dispatched for parallel execution.
+
+\subsection{Stage 6: Heterogeneous Tool Execution Engine}
+The top-$K$ selected endpoints are routed to dedicated tool adapters:
+\begin{itemize}
+    \item \textbf{Relational Database Adapter (\texttt{tools/sql\_tool.py}):} Receives natural language intents, generates ANSI SQL queries via a constrained grammar, executes the query against SQLite / PostgreSQL inside a read-only transaction, and serializes the resulting records into structured key-value tuples.
+    \item \textbf{RESTful Service Adapter (\texttt{tools/api\_tool.py}):} Constructs parameterized HTTP requests, executes REST calls with automatic retry back-off, parses JSON responses, and filters payload payloads using JSONPath selectors.
+    \item \textbf{Unstructured Document Adapter (\texttt{tools/document\_tool.py}):} Extracts relevant passages from enterprise PDF and Word handbooks using section-aware text chunking.
+    \item \textbf{Vector Store Adapter (\texttt{tools/vector\_tool.py}):} Performs dense semantic nearest-neighbor retrieval over internal technical documentation.
+\end{itemize}
+
+\subsection{Stage 7: Evidence Fusion and Numerical Conflict Mitigation}
+When raw evidence payloads $\mathcal{E}_{\text{raw}} = \{e_1, \dots, e_p\}$ return from the executed tools, AMORA executes a two-phase fusion pipeline:
+
+\subsubsection{Sliding-Window Exact Hash Deduplication}
+Retrieved text snippets frequently contain identical boilerplates or repeated database rows. AMORA segments each snippet into sliding token windows of size $w = 16$ with stride $s = 8$, computing 64-bit MurmurHash3 digests. Chunks with duplicate window hashes are pruned, stripping redundant tokens.
+
+\subsubsection{Pairwise Numerical Discrepancy Graph Extraction}
+For all numerical entities (quantities, prices, dates, percentages) extracted from the retrieved payloads, AMORA constructs a fact conflict hypergraph $\mathcal{G}_{\text{conflict}} = (\mathcal{V}, \mathcal{E})$. If two distinct sources $s_a$ and $s_b$ report differing numerical values for the identical entity anchor $A$ (e.g., $s_{\text{SQL}}$ reports $\text{Stock}=150$ while $s_{\text{DOC}}$ reports $\text{Stock}=90$), an edge $e_{ab} \in \mathcal{E}$ is instantiated. Rather than silently dropping conflicting facts, AMORA explicitly annotates the contradiction in the context header:
+\begin{quote}
+    \texttt{[SYSTEM DISCREPANCY WARNING: Source 'pos\_ledger' reports Stock=150 (Freshness=0.98), whereas Source 'inventory\_manual' reports Stock=90 (Freshness=0.12). Prioritize freshest live source.]}
+\end{quote}
+This explicit grounding prevents the local LLM from hallucinating an arbitrary compromise.
+
+\subsubsection{Fused Evidence Scoring and Context Assembly}
+The final context evidence items are re-ranked according to a convex combination of retrieval score and source authority:
+\begin{equation}
+    S_{\text{fused}} = 0.40 \cdot R_{\text{retrieval}} + 0.60 \cdot S_{\text{source}}
+    \label{eq:fused_score}
+\end{equation}
+The deduplicated, conflict-annotated context is formatted into a compact token representation for generator consumption.
+
+\subsection{Stage 8: Local Quantized Generation Engine}
+The compacted context $\mathcal{X}$ and original query $q$ are passed to a local Qwen 2.5 7B model quantized to 4-bit precision (\texttt{Q4\_K\_M}) hosted via Ollama on localhost. Because all intermediate embeddings, SQL database queries, and context strings reside entirely on the local workstation host, data residency is strictly preserved with zero external network egress.

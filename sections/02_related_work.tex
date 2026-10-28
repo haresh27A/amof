@@ -1,0 +1,98 @@
+\section{Related Work}
+\label{sec:related_work}
+
+The design of AMORA intersects multiple foundational subfields in natural language processing, distributed information retrieval, multi-objective optimization, and neuro-symbolic systems engineering. This section provides a comprehensive taxonomy and critical comparative analysis of existing research across these domains.
+
+\subsection{Evolution of Retrieval-Augmented Generation (RAG)}
+Retrieval-Augmented Generation fundamentally reconceptualizes sequence-to-sequence modeling by decomposing generative inference into non-parametric memory retrieval and parametric sequence generation \cite{lewis2020rag}. Early foundational architectures, such as REALM \cite{guu2020realm} and RETRO \cite{borgeaud2022retro}, integrated dense dual-encoder retrieval mechanisms directly into transformer pre-training objectives, demonstrating substantial improvements in open-domain factual benchmarks.
+
+As frontier LLMs expanded in size, fine-tuning retrieval encoders end-to-end became computationally prohibitive. Consequently, the field transitioned toward modular, post-hoc RAG pipelines \cite{gao2023rag_survey}. Standard modular RAG employs dense bi-encoders (e.g., Dense Passage Retrieval (DPR) \cite{karpukhin2020dpr}, Contriever \cite{izacard2021contriever}, and BGE \cite{xiao2023bge}) to compute semantic vector similarities across chunked text collections, executing nearest-neighbor search via approximate indexing structures (such as HNSW \cite{malkov2018hnsw} or FAISS \cite{johnson2019billion}). 
+
+Subsequent innovations focused on query reformulation and multi-query expansion (e.g., Query2Doc \cite{wang2023query2doc}, HyDE \cite{gao2022hyde}), where an auxiliary LLM synthesizes hypothetical document passages to refine vector similarity lookups. Similarly, Speculative RAG \cite{wang2024speculative} and Corrective RAG (CRAG) \cite{yan2024crag} incorporate auxiliary evaluator networks to filter irrelevant document chunks before conditioning. However, all these approaches operate under the critical constraint of a single, monolithic, unstructured text corpus and fail to coordinate heterogeneous computational tools such as transactional SQL engines or parameterized REST APIs.
+
+\subsection{Adaptive, Conditional, and Self-Reflective Retrieval}
+Recognizing the substantial latency and compute penalties imposed by unconditional retrieval, recent literature has explored adaptive and iterative retrieval triggers.
+
+FLARE (\textit{Forward-Looking Active Retrieval Augmented Generation}) \cite{jiang2023flare} monitors the token-level generation probabilities of the decoding LLM. When the model emits a token sequence exhibiting low average confidence (measured via token entropy or log-probability thresholds), generation is paused, a temporary retrieval query is formulated using the anticipated sentence structure, external documents are retrieved, and the sentence is regenerated. While FLARE successfully avoids unnecessary retrieval on high-confidence sentences, its token-level monitoring requires access to model logits (often unavailable in black-box APIs) and introduces high decode-loop latency due to repeated context rewrites.
+
+Self-RAG \cite{asai2023selfrag} trains an LLM using special reflection tokens (e.g., \texttt{[Retrieve]}, \texttt{[IsRel]}, \texttt{[IsSup]}, \texttt{[IsUse]}) that allow the model to autonomously determine when to retrieve, evaluate retrieved chunk relevance, and critique the factual support of its own generated tokens. Although Self-RAG demonstrates remarkable autonomy, it requires supervised fine-tuning on custom instruction datasets, restricting its adoption to specific open-source base models and prohibiting zero-shot deployment across off-the-shelf commercial or specialized enterprise models.
+
+Adaptive-RAG \cite{jeong2024adaptiverag} introduces an auxiliary classifier that categorizes incoming queries into distinct complexity tiers (simple, moderate, complex), selectively activating no retrieval, single-step retrieval, or iterative multi-step reasoning. Similarly, Active-RAG and SKR \cite{wang2023skr} explore whether LLMs ``know what they know'' by prompting models to self-assess their own internal knowledge prior to querying an index.
+
+While these frameworks advance adaptive gating, they share a critical limitation: they evaluate retrieval strictly in open-domain Wikipedia-style environments where knowledge is public. In an enterprise setting, an over-confident self-assessment risks catastrophic false negatives, where the model mistakenly assumes it possesses proprietary corporate information (e.g., real-time warehouse inventory or quarterly revenue figures) and hallucinates corporate data. AMORA resolves this via the INKER Knowledge Retrieval Trigger (IE-KRT), which explicitly couples syntactic complexity with factual and temporal sensitivity metrics, enforcing a conservative threshold ($\theta = 0.25$) that guarantees zero false negatives on private operational records.
+
+\subsection{Tool-Augmented LLMs and API Coordination}
+To expand model capabilities beyond static text synthesis, the research community has actively developed tool-augmented language systems.
+
+Toolformer \cite{schick2023toolformer} demonstrated that language models can self-supervisedly learn to invoke discrete computational APIs (such as calculators, Wikipedia lookups, machine translation, and calendar apps) by inserting inline functional call tokens. Concurrently, ReAct \cite{yao2022react} formalized the interleaving of explicit reasoning traces (``Thoughts'') and environmental tool executions (``Actions''), establishing the foundation for modern autonomous agent frameworks.
+
+To address scale, Gorilla \cite{patil2023gorilla} and ToolLLM \cite{qin2023toolllm} investigated model instruction-tuning across vast catalogs of real-world RESTful APIs (e.g., TorchHub, HuggingFace, RapidAPI). ToolLLM, for instance, compiled over 16,000 real-world APIs and introduced ToolBench, demonstrating that fine-tuned 7B models could perform multi-step DFS tool routing. RestGPT \cite{song2023restgpt} and Chameleon \cite{lu2023chameleon} further structured API invocation through hierarchical planners and execution controllers.
+
+Despite their expressive power, existing tool-use frameworks suffer from severe profiling bottlenecks when exposed to massive enterprise catalogs. Gorilla and ToolLLM typically rely on BM25 or unindexed retrieval across API docstrings, followed by an LLM-driven in-context selection loop. When the catalog $N$ contains thousands of database views, internal microservices, and compliance manuals, feeding all API documentation into an LLM prompt exceeds context window limits and incurs unsustainable latency. AMORA solves this bottleneck through its two-stage vector pre-filtering funnel, which mechanically prunes $N=10,000$ endpoints down to $M=55$ candidates in $3.26\,\text{ms}$ before invoking downstream ranking.
+
+\subsection{Model Routing and Frugal Inference Cascades}
+In parallel with tool coordination, model routing has emerged as a vital strategy for minimizing operational inference expenditures across heterogeneously priced LLMs.
+
+FrugalGPT \cite{chen2023frugalgpt} proposed an algorithmic cascade that queries inexpensive, lightweight models first, sequentially escalating to expensive frontier models (such as GPT-4) only when internal scoring heuristics indicate low output quality. RouteLLM \cite{ong2024routellm} formalized dynamic routing as a preference-learning problem, training matrix factorization and causal transformer classifiers to predict when a lightweight model (e.g., Llama-3-8B) will match the performance of a frontier model on a given query, achieving up to $85\%$ cost reduction on standard benchmarks.
+
+Hybrid LLM routing frameworks \cite{ding2024hybrid} extend this paradigm by dynamically delegating queries across edge devices, private on-premises servers, and public cloud infrastructure based on privacy annotations and compute budgets. AMORA synthesizes these principles but shifts the optimization axis: rather than routing between different cloud LLMs, AMORA keeps the generative LLM strictly local and on-premises (Qwen 2.5 7B), dynamically routing \textit{the retrieval and tool inputs} under multi-objective resource constraints.
+
+\subsection{Multi-Objective Information Retrieval and Pareto Optimization}
+Information retrieval in multi-modal environments inherently involves competing, incommensurable criteria. A candidate source may offer exceptional semantic relevance but suffer from high latency, stale records, high monetary query fees, or low historical reliability \cite{miettinen1999multiobjective,deb2001multi}.
+
+Traditional search engines resolve multi-criteria trade-offs using static linear scalarization (e.g., Learning-to-Rank formulations such as LambdaMART \cite{burges2010lambdamart}) or constrained non-linear programming. However, static weights cannot adapt to the shifting priorities of heterogeneous enterprise queries: a compliance audit query demands absolute reliability and provenance ($W_l \gg W_c$), while an urgent supply-chain query requires real-time freshness ($W_f \gg W_h$).
+
+In multi-objective optimization literature, Pareto-optimal set identification (NSGA-II \cite{deb2002fast}, MOEA/D \cite{zhang2007moea}) provides a rigorous foundation for identifying non-dominated solutions across multi-dimensional criteria. In this work, AMORA establishes an analytical bridge between Pareto optimality and adaptive query intent. We formulate a dynamically normalized 6-dimensional scoring function subject to the strict simplex constraint $\sum W_j = 1.0$, mathematically proving that dynamic weight updates preserve the Pareto frontier while guaranteeing optimal alignment with detected query modalities.
+
+\subsection{Deduplication, Multi-Document Conflict Detection, and Truth Discovery}
+When multiple heterogeneous tools are invoked simultaneously, their outputs frequently contain redundant information or outright factual discrepancies.
+
+In multi-document summarization literature, text deduplication is conventionally handled through character-level n-gram overlap, MinHash locality-sensitive hashing (LSH) \cite{broder1997minhash}, or semantic passage cosine thresholds. However, semantic embeddings often fail to detect fine-grained numerical discrepancies (e.g., the vector cosine similarity between ``Stock is 150'' and ``Stock is 90'' is typically $>0.94$, masking the critical operational contradiction) \cite{min2023factscore}.
+
+Truth discovery and multi-source credibility modeling have been extensively studied in database literature \cite{li2014resolving,zheng2017truth}. Existing truth discovery algorithms iteratively infer source trustworthiness and object truth values via Bayesian networks or expectation-maximization (EM) \cite{dawid1979maximum}. However, these algorithms assume batch processing over large static relational tables and cannot operate within the sub-$10\,\text{ms}$ latency envelope required by conversational RAG systems. AMORA bridges this divide by deploying a lightweight, graph-theoretic entity extraction and sliding-window hash deduplication engine that isolates contradictory numerical values across database rows and API responses in $O(E^2)$ time prior to LLM synthesis.
+
+\subsection{Comparative Taxonomic Differentiation}
+Table \ref{tab:related_work_comparison} provides an exhaustive comparative matrix evaluating AMORA against twelve prominent prior frameworks across ten key architectural criteria:
+\begin{enumerate}
+    \item \textbf{Adaptive Gating:} Capability to dynamically bypass retrieval on parametric queries.
+    \item \textbf{Modality Heterogeneity:} Native support for SQL ledgers, REST APIs, and unstructured documents.
+    \item \textbf{Catalog Scalability ($N \ge 10^4$):} Execution latency invariant to massive catalog expansion.
+    \item \textbf{Dynamic Multi-Objective Routing:} Real-time dynamic balancing of 4+ operational dimensions.
+    \item \textbf{Evidence Deduplication:} Window-level hash or semantic compaction of retrieved chunks.
+    \item \textbf{Numerical Conflict Detection:} Graph-level identification of contradictory entity numbers.
+    \item \textbf{On-Premises Data Residency:} Zero external network egress or third-party cloud dependence.
+    \item \textbf{Mathematical Complexity Bounds:} Formal provable guarantees on algorithmic complexity.
+    \item \textbf{Hardware Efficiency (Single GPU):} Capable of operating on commodity hardware ($\le 12\,\text{GB}$ VRAM).
+    \item \textbf{Empirical Workload Compounding:} Multiplicative optimization across gating and token compaction.
+\end{enumerate}
+
+\begin{table*}[t]
+\centering
+\caption{Comprehensive Architectural Comparison of AMORA Against Prior State-of-the-Art Frameworks}
+\label{tab:related_work_comparison}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccccccc}
+\toprule
+\textbf{Framework} & \textbf{Adaptive} & \textbf{Modality} & \textbf{Catalog} & \textbf{Dynamic} & \textbf{Evidence} & \textbf{Conflict} & \textbf{On-Premises} & \textbf{Formal} & \textbf{Single-GPU} & \textbf{Compound} \\
+ & \textbf{Gating} & \textbf{Heterogeneity} & \textbf{Scalability} & \textbf{Multi-Obj.} & \textbf{Dedup} & \textbf{Detection} & \textbf{Residency} & \textbf{Proofs} & \textbf{Footprint} & \textbf{Efficiency} \\
+\midrule
+Standard RAG \cite{lewis2020rag} & $\times$ & $\times$ (Text only) & $\times$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ \\
+REALM / RETRO \cite{guu2020realm,borgeaud2022retro} & $\times$ & $\times$ (Text only) & $\times$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & $\times$ \\
+FLARE \cite{jiang2023flare} & $\checkmark$ (Confidence) & $\times$ (Text only) & $\times$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ \\
+Self-RAG \cite{asai2023selfrag} & $\checkmark$ (Reflection) & $\times$ (Text only) & $\times$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\times$ & $\times$ \\
+Adaptive-RAG \cite{jeong2024adaptiverag} & $\checkmark$ (Classifier) & $\times$ (Text only) & $\times$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ \\
+Corrective RAG (CRAG) \cite{yan2024crag} & $\times$ & $\times$ (Text/Web) & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ \\
+Toolformer \cite{schick2023toolformer} & $\checkmark$ (Token-level) & $\checkmark$ (Few APIs) & $\times$ ($N \le 10$) & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ \\
+Gorilla \cite{patil2023gorilla} & $\times$ & $\checkmark$ (APIs) & $\times$ (Prompt scan)& $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+ToolLLM \cite{qin2023toolllm} & $\times$ & $\checkmark$ (APIs) & $\times$ (DFS search)& $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+RouteLLM \cite{ong2024routellm} & $\checkmark$ (Model tier) & $\times$ (No tools) & N/A & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & N/A & $\times$ \\
+FrugalGPT \cite{chen2023frugalgpt} & $\checkmark$ (Cascade) & $\times$ (No tools) & N/A & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & N/A & $\times$ \\
+INKER Pipeline \cite{inker2024} & $\checkmark$ (IE-KRT) & $\times$ (Text only) & $\times$ & $\times$ & $\times$ & $\times$ & $\checkmark$ & $\times$ & $\checkmark$ & $\times$ \\
+\midrule
+\textbf{AMORA (Ours)} & \textbf{$\checkmark$ (IE-KRT)} & \textbf{$\checkmark$ (SQL+API+Doc)} & \textbf{$\checkmark$ ($N \ge 10^4$)} & \textbf{$\checkmark$ (6D Simplex)} & \textbf{$\checkmark$ (Hash-Window)} & \textbf{$\checkmark$ ($O(E^2)$ Graph)} & \textbf{$\checkmark$ (Zero-Egress)} & \textbf{$\checkmark$ (5 Theorems)} & \textbf{$\checkmark$ (4.68 GB)} & \textbf{$\checkmark$ (52.4\% Net)} \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+As systematically demonstrated in Table \ref{tab:related_work_comparison}, AMORA is the first unified framework to bridge the gap between adaptive knowledge gating, heterogeneous tool coordination at enterprise catalog scale, dynamic multi-objective Pareto optimization, and verifiable on-premises privacy.

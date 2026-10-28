@@ -1,0 +1,55 @@
+[
+  {
+    "query_id": "q001",
+    "query": "What is the current inventory stock quantity of Quantum X Laptop?",
+    "gold_sources": [
+      "src_demo_sql"
+    ],
+    "acceptable_sources": [
+      "src_demo_sql",
+      "src_demo_api"
+    ],
+    "domain": "inventory",
+    "requires_retrieval": true,
+    "required_tool": "sql_tool",
+    "gold_answer": "45 units in Warehouse A."
+  },
+  {
+    "query_id": "q002",
+    "query": "What does the company return policy say about unopened merchandise and refund timeframe?",
+    "gold_sources": [
+      "src_demo_doc"
+    ],
+    "acceptable_sources": [
+      "src_demo_doc"
+    ],
+    "domain": "legal_policy",
+    "requires_retrieval": true,
+    "required_tool": "doc_tool",
+    "gold_answer": "Unopened merchandise can be returned within 30 days; refunds take 5-7 business days."
+  },
+  {
+    "query_id": "q003",
+    "query": "Which product has generated the highest sales revenue?",
+    "gold_sources": [
+      "src_demo_sql"
+    ],
+    "acceptable_sources": [
+      "src_demo_sql"
+    ],
+    "domain": "sales",
+    "requires_retrieval": true,
+    "required_tool": "sql_tool",
+    "gold_answer": "Quantum X Laptop (P-101) with $9,099.93 total sales."
+  },
+  {
+    "query_id": "q004",
+    "query": "What is the capital of France?",
+    "gold_sources": [],
+    "acceptable_sources": [],
+    "domain": "general_knowledge",
+    "requires_retrieval": false,
+    "required_tool": null,
+    "gold_answer": "Paris."
+  }
+]
